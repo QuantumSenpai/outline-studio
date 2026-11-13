@@ -1,0 +1,6 @@
+{
+  "name": "outline-studio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Free, local-first AI assignment orchestrator. Turns a brief or rubric into PPTX, DOCX, PDF and diagrams. Bring your own API key."
+}
