@@ -1,137 +1,128 @@
-<div align="center">
+<p align="center">
+  <img src="docs/assets/banner.gif" alt="Outline Studio. Every format. One flow. A brief becomes coordinated PPTX, DOCX, PDF and diagram documents." width="1080">
+</p>
 
-<img src="docs/assets/banner.gif" alt="Outline Studio. Every format. One flow. Animated paths connect a brief to PPTX, DOCX, PDF and diagrams." width="100%">
+<p align="center">
+  <strong>Free, local-first AI assignment orchestrator.</strong><br>
+  Turns a brief or rubric into PPTX, DOCX, PDF and diagrams. Bring your own API key.
+</p>
 
-# Outline Studio
+<p align="center">
+  <a href="#project-status">Status</a> · <a href="#the-workflow">Workflow</a> · <a href="#architecture">Architecture</a> · <a href="#development">Development</a> · <a href="#team">Team</a><br>
+  <a href="docs/assets/banner-static.png">View static hero PNG</a>
+</p>
 
-### Every format. One flow.
+## Project status
 
-Free, local-first AI assignment orchestrator.<br>
-Turns a brief or rubric into PPTX, DOCX, PDF and diagrams. Bring your own API key.
+**Pre-implementation. No runnable application yet.** The repository contains documentation, artwork and the MIT license. There is no application source, package manifest or application test suite. The animations illustrate the intended product; they are not recordings of working software.
 
-**[Overview](#overview)** · **[Architecture](#architecture)** · **[Roadmap](#roadmap)** · **[Team](#team)**
+| Available now | Next to implement · Phase 1 | Later phases |
+| :--- | :--- | :--- |
+| Project documentation, reproducible artwork and license | Provider adapters, Zod Document IR, single agent chain, DOCX/PDF export and key vault | PPTX, diagrams, rubric extraction, review loops and more |
 
-</div>
+## One assignment, less rework
 
----
+An assignment can require a report, slides and a diagram. Rebuilding the same ideas in separate tools makes revisions slow and inconsistencies easy to miss. Outline Studio is designed around one structured source that can feed several document renderers.
 
-## Overview
-
-Outline Studio is being built to turn an assignment brief into a coordinated set of documents. The planned workflow starts with the requirements, creates an outline, writes structured content and exports it into the formats you need.
-
-**Status: pre-implementation.** This repository currently contains the project license and documentation. The capabilities below describe the intended product; working exports and provider integrations are not available yet.
-
-| Start with | Build towards |
-| :--- | :--- |
-| A topic, brief or assignment question | A structured document with headings, paragraphs and tables |
-| A rubric or college format | Content checked against the assignment requirements |
-| One shared content model | PPTX, DOCX, PDF and diagrams from the same workflow |
-| Your own provider key | Provider choice without a shared project API key |
+Start with a brief; shape the outline; review the content; choose the output. Rubric input and additional formats arrive after Phase 1.
 
 ## The workflow
 
-1. **Define** the brief, audience, length and required format.
-2. **Plan** an outline around the assignment requirements.
-3. **Write** content into a validated document model.
-4. **Review** the draft and revise it before export.
-5. **Export** through format-specific renderers.
+![Planned workflow: plan requirements, structure content as Document IR, validate block types and required fields, then export DOCX and PDF.](docs/assets/workflow.gif)
 
-Phase 1 focuses on a single agent chain and DOCX/PDF exports. Rubric extraction, automated review, verified references and additional formats belong to later phases.
+[View static workflow PNG](docs/assets/workflow-static.png)
+
+1. **Plan** — supply the topic, audience, length and requirements; shape an outline.
+2. **Structure** — generate headings, paragraphs, tables and other typed content blocks.
+3. **Validate** — check the document against its schema; review and revise the draft.
+4. **Export** — render the same content into the required format, starting with DOCX/PDF.
+
+Schema validation checks structure. It does not prove factual accuracy, citation quality or rubric compliance. Automated review and citation verification are later work.
+
+## Formats
+
+![Planned output family: PPTX presentation, DOCX report, PDF document and diagrams. Document lines, chart bars, checks and diagram connections build in sequence.](docs/assets/formats.gif)
+
+[View static format strip PNG](docs/assets/formats-static.png)
+
+**DOCX and PDF:** Phase 1. **PPTX and diagrams:** Phase 2. No format exporter is implemented yet.
 
 ## Architecture
 
-The planned architecture is browser-first: a React PWA coordinates generation, keeps local history and runs document exporters. A small stateless proxy forwards requests to supported cloud providers.
+The planned browser application owns orchestration, local data and document rendering. A stateless Cloudflare Worker proxy forwards cloud generation requests to the selected provider.
 
-| Layer | Responsibility | Planned technology |
-| :--- | :--- | :--- |
-| Interface | Brief input, provider settings and document review | React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui |
-| Orchestration | Typed steps, cancellation, retries and checkpoints | XState, Zustand, Zod |
-| Local storage | History, document data and optional encrypted keys | Dexie, IndexedDB, WebCrypto |
-| Provider access | Provider adapters and request forwarding | Cloudflare Workers, Hono |
-| Document model | Shared validated JSON intermediate representation | TypeScript, Zod |
-| Export | Deterministic document generation | docx, pdf-lib, pdfmake, later PptxGenJS |
-| Diagrams | Structured diagrams rendered as SVG/PNG | Mermaid, Graphviz WASM |
-| Background work | Keep expensive processing off the main UI thread | Web Workers, Comlink |
+```text
+Brief → plan → provider adapter → structured content
+                                      ↓
+                               Zod Document IR
+                                      ↓
+                              review → renderers → files
 
-The AI produces structured content rather than binary office files. Zod validates that content before dedicated renderers turn it into documents. Export layout is controlled by code; visual fidelity still requires testing.
+Browser ⇄ Cloudflare Workers / Hono proxy ⇄ chosen provider
+   └── Dexie / IndexedDB + optional WebCrypto key vault
+```
 
-## Privacy and provider keys
+**Zod Document IR** is the planned shared intermediate representation: typed JSON content validated at the model boundary and before export. The AI supplies content; browser renderers create the files. A common IR keeps format logic separate from generation and allows each renderer to be tested independently. The schema itself has not been implemented.
 
-These are implementation requirements, not completed security guarantees.
+### Stack by responsibility
 
-- API keys enter through the UI and stay in session memory by default.
-- An optional key vault encrypts saved keys using a passphrase-derived key.
-- Keys must never appear in source files, URLs, plaintext local storage or logs.
-- Cloud generation sends the selected content and key through the proxy to the chosen provider. Local-first storage does not mean cloud requests stay on the device.
-- The proxy must restrict upstream hosts, enforce request limits and avoid retaining request content or keys.
-- Encryption at rest does not protect an unlocked session against malicious JavaScript.
+All technologies below are specified choices, not installed dependencies in this repository.
 
-Outline Studio is intended to be free software. Provider pricing, quotas and hosting limits are separate constraints; BYOK does not guarantee free inference.
+| Responsibility | Planned stack |
+| :--- | :--- |
+| Interface | React 19, TypeScript strict, Vite, Tailwind CSS v4, shadcn/ui |
+| Orchestration and state | XState for the agent chain; Zustand for application state |
+| Content contracts | Zod Document IR and boundary validation |
+| Local persistence and key encryption | Dexie / IndexedDB; WebCrypto |
+| Provider request proxy | Cloudflare Workers; Hono |
+| Browser document rendering | docx, pdf-lib / pdfmake; PptxGenJS in Phase 2 |
+| Diagram rendering | Mermaid; Graphviz WASM in Phase 2 |
+| Background processing | Web Workers; Comlink |
+
+## Development
+
+There is no application installation or start command yet. This checkout has no `package.json`, lockfile, or dev/build/test scripts to run. Setup instructions will follow the Phase 1 workspace; the stack above is the implementation target.
+
+To reproduce the documentation graphics, see [animation sources and commands](docs/animation/README.md). Those tools are separate from the future application's production dependencies.
+
+## BYOK and provider configuration
+
+Bring your own API key means choosing and paying for your own provider account. The planned settings flow is to select a supported provider and model, enter a key in the UI, and optionally save it in the encrypted vault. No provider adapter, model selector, proxy deployment or key vault exists yet, so there are no working provider configuration commands or environment variables to document.
+
+Keys are intended to remain in session memory by default. Optional persistence will use a passphrase-derived WebCrypto key. Keys must never be committed, embedded in URLs, logged or stored as plaintext. **Free software does not guarantee free inference:** provider pricing, quotas and hosting limits still apply.
+
+## Privacy boundaries
+
+These are design requirements, not completed security guarantees.
+
+- **Local-first storage:** history and document data are intended to live in browser IndexedDB. This does not keep cloud requests on-device.
+- **Cloud generation:** selected content and API keys transit the proxy to the chosen provider. That provider's retention and processing policies apply.
+- **Proxy boundary:** the proxy must restrict upstream hosts, limit requests and avoid retaining content or keys. These controls are not implemented yet.
+- **Encryption at rest:** a locked vault protects stored key material. It does not protect an unlocked session from malicious JavaScript.
 
 ## Roadmap
 
-| Phase | Scope | Status |
+| Phase | Scope | State |
 | :---: | :--- | :--- |
-| **01** | Provider adapters, Zod Document IR, single agent chain, DOCX/PDF export, API key vault | **Next to build** |
+| **01** | Provider adapters, Zod Document IR, single agent chain, DOCX/PDF export, key vault | **Next to build** |
 | 02 | PPTX export, Mermaid/Graphviz diagrams, themes, streaming interface | Planned |
 | 03 | Rubric extraction, review loop, citation verification, college templates | Planned |
 | 04 | PWA offline support, OCR input, English/Hindi UI, accessibility pass | Planned |
 | 05 | Local model integrations and renderer/template extensions | Planned |
 
-Development proceeds one phase at a time. Phase 1 is the current implementation scope.
-
-## Development
-
-Application setup commands will be added once the Phase 1 workspace exists. There is no runnable application in this documentation release.
-
-Planned workspace layout:
-
-```text
-outline-studio/
-├── apps/
-│   ├── web/
-│   │   └── src/
-│   │       ├── ui/
-│   │       ├── domain/
-│   │       ├── adapters/
-│   │       └── workers/
-│   └── proxy/
-│       └── src/
-├── packages/
-│   ├── schemas/
-│   └── config/
-├── docs/
-│   ├── assets/
-│   └── adr/
-└── .github/workflows/
-```
-
-Code standards: strict TypeScript, no `any`, no code comments, Zod validation at boundaries, files under 150 lines and functions under 30 lines. Planned checks include Biome, type checking, Vitest, provider mocks, export validation and Playwright.
-
 ## Team
 
-Built together by the following team members. Names are listed in the order provided by the team.
-
-| No. | Team member | University roll number |
-| :---: | :--- | :--- |
-| 01 | **Krishnendu Adak** | `UG/SOET/30/24/343` |
-| 02 | **Krishnendu Das** | `UG/SOET/30/24/448` |
-| 03 | **Md Danish Raza** | `UG/SOET/30/24/369` |
-| 04 | **Sneha Das** | `UG/SOET/30/24/467` |
-| 05 | **Shreankita Das** | `UG/SOET/30/24/436` |
-| 06 | **Shruti Nayak** | `UG/SOET/30/24/423` |
-| 07 | **Rudra Bharti** | `UG/SOET/30/24/462` |
-| 08 | **Aniket Shaw** | `UG/SOET/30/24/409` |
+| Member | Roll number |
+|---|---|
+| Krishnendu Adak | UG/SOET/30/24/343 |
+| Krishnendu Das | UG/SOET/30/24/448 |
+| Md Danish Raza | UG/SOET/30/24/369 |
+| Sneha Das | UG/SOET/30/24/467 |
+| Shreankita Das | UG/SOET/30/24/436 |
+| Shruti Nayak | UG/SOET/30/24/423 |
+| Rudra Bharti | UG/SOET/30/24/462 |
+| Aniket Shaw | UG/SOET/30/24/409 |
 
 ## License
 
-Released under the [MIT License](LICENSE).
-
----
-
-<div align="center">
-
-**Outline Studio**<br>
-Every format. One flow.
-
-</div>
+[MIT License](LICENSE). The existing copyright and license terms are unchanged.

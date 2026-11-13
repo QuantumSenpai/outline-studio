@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outline Studio · artwork preview</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: #1e2030; font: 16px/1.6 system-ui, sans-serif; }
+  main { max-width: 940px; margin: auto; padding: 32px; }
+  h1 { margin-bottom: 0; font-size: clamp(28px, 5vw, 42px); letter-spacing: -.04em; }
+  h2 { margin-top: 48px; font-size: 24px; }
+  p { max-width: 70ch; }
+  a { color: #4338ca; }
+  img { display: block; width: 100%; height: auto; }
+  figure { margin: 20px 0; }
+  figcaption { margin-top: 12px; }
+  summary { cursor: pointer; margin: 16px 0; }
+  body:has(#dark:checked) { background: #1e2030; color: #f7f4ee; }
+  body:has(#dark:checked) a { color: #b6b0ff; }
+  label { display: inline-flex; align-items: center; gap: 8px; }
+  @media (max-width: 600px) { main { padding: 20px 16px; } }
+</style>
+<main>
+  <h1>Outline Studio</h1>
+  <p>Every format. One flow. Documentation artwork, not an application demo.</p>
+  <label><input type="checkbox" id="dark">Dark surround</label>
+  <p>Three eight-second loops. Reduced-motion preferences select the PNGs. The stills are also available below every animation.</p>
+  <h2>01 · Hero</h2>
+  <figure>
+    <picture>
+      <source media="(prefers-reduced-motion: reduce)" srcset="../assets/banner-static.png">
+      <img src="../assets/banner.gif" alt="Outline Studio. Every format. One flow. A brief connects to four document formats.">
+    </picture>
+    <figcaption><a href="../assets/banner-static.png">Static hero PNG</a> · 1080 × 650</figcaption>
+  </figure>
+  <details><summary>Show hero still</summary><img src="../assets/banner-static.png" alt="Completed hero composition"></details>
+  <h2>02 · Workflow</h2>
+  <figure>
+    <picture>
+      <source media="(prefers-reduced-motion: reduce)" srcset="../assets/workflow-static.png">
+      <img src="../assets/workflow.gif" alt="Plan, structure, validate and export, with staggered document details.">
+    </picture>
+    <figcaption><a href="../assets/workflow-static.png">Static workflow PNG</a> · 800 × 700</figcaption>
+  </figure>
+  <details><summary>Show workflow still</summary><img src="../assets/workflow-static.png" alt="Completed workflow composition"></details>
+  <h2>03 · Formats</h2>
+  <figure>
+    <picture>
+      <source media="(prefers-reduced-motion: reduce)" srcset="../assets/formats-static.png">
+      <img src="../assets/formats.gif" alt="PPTX, DOCX, PDF and diagram details build in sequence.">
+    </picture>
+    <figcaption><a href="../assets/formats-static.png">Static format strip PNG</a> · 1080 × 224</figcaption>
+  </figure>
+  <details><summary>Show format still</summary><img src="../assets/formats-static.png" alt="Completed format strip composition"></details>
+  <p><a href="README.md">Reproduction instructions</a> · <a href="../../README.md">Project README source</a></p>
+</main>
+</html>
