@@ -34,6 +34,12 @@ export function WorkspaceScreen({ style, projectId, fresh = false }: { style: St
   const [providerOpen, setProviderOpen] = useState(false); const [styleOpen, setStyleOpen] = useState(false); const [dataOpen, setDataOpen] = useState(false);
   if (!loaded || !store.hydrated || !store.checkpoint) return <main id="main" className="page-container empty-page" aria-busy="true"><h1>Opening your studio.</h1><p>Loading local drafts and checkpoints…</p></main>;
   const { checkpoint, activeTab, setTab } = store;
+  const chatMode = checkpoint.mode === 'chat';
+  const visibleTabs = tabs.filter(([value]) => {
+    if (value === 'conversation' || value === 'document' || value === 'history') return true;
+    const task = checkpoint.tasks.find(item => item.stage === value);
+    return task ? task.status !== 'queued' || activeTab === value : activeTab === value;
+  });
   function requireProvider(action: () => void) {
     if (!online) { store.message('You are offline. Review and edit local work now; reconnect before generating.'); return; }
     if (!providers.connections.some(c => c.validated && c.provider === providers.primary)) { setProviderOpen(true); return; }
@@ -49,11 +55,11 @@ export function WorkspaceScreen({ style, projectId, fresh = false }: { style: St
       <button aria-label="Data controls" onClick={() => setDataOpen(true)} disabled={busy}><Database size={16} /><span>Data controls</span><small className="toolbar-short-label">Data</small></button></div></header>
     {!online && <div className="workspace-network" role="status"><WifiOff size={16} /> Offline · local review and editing remain available. Reconnect, then retry unfinished stages.</div>}
     {store.persistenceError && <p className="notice error" role="alert">{store.persistenceError}</p>}
-    <div className="workspace-body"><TaskRail busy={busy} /><Tabs.Root className="workspace-main" value={activeTab} onValueChange={setTab}>
-      <Tabs.List aria-label="Workspace views" className="workspace-tabs">{tabs.map(([value,label]) => <Tabs.Trigger value={value} key={value}>{label}</Tabs.Trigger>)}</Tabs.List>
+    <div className={`workspace-body${chatMode ? ' chat-mode' : ''}`}>{!chatMode && <TaskRail busy={busy} />}<Tabs.Root className="workspace-main" value={activeTab} onValueChange={setTab}>
+      <Tabs.List aria-label="Workspace views" className="workspace-tabs">{visibleTabs.map(([value,label]) => <Tabs.Trigger value={value} key={value}>{label}</Tabs.Trigger>)}</Tabs.List>
       <Tabs.Content value="conversation" className="workspace-tab-content"><Conversation busy={busy} onPlan={() => requireProvider(() => void pipeline.plan().catch(error => store.message(messageFrom(error))))}
         onChat={(documentation, retry) => requireProvider(() => void chat.send(documentation, retry))} chatPartial={chat.partial} chatError={chat.error}
-        attachments={chat.attachments} onAddFiles={chat.addFiles} onRemoveAttachment={chat.removeAttachment} useImages={chat.useImages} onUseImages={chat.setUseImages}
+        attachments={chat.attachments} onAddFiles={chat.addFiles} onRemoveAttachment={chat.removeAttachment} useImages={chat.useImages} onUseImages={chat.setUseImages} preparing={chat.preparing}
         onCancel={chat.busy ? chat.cancel : pipeline.cancel} onAccept={() => requireProvider(pipeline.accept)} onReview={() => requireProvider(() => pipeline.send({ type: 'REVIEW' }))}
         onResume={() => requireProvider(() => pipeline.send({ type: 'COMPOSE' }))} openProvider={() => setProviderOpen(true)} /></Tabs.Content>
       <Tabs.Content value="document" className="workspace-tab-content scroll-panel"><DocumentView busy={busy} /></Tabs.Content>

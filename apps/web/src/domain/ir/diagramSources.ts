@@ -1,13 +1,19 @@
 import { diagramSchema, type DiagramIR } from '@outline-studio/schemas';
 
+const shape = { process: 'box', decision: 'diamond', start: 'ellipse', data: 'parallelogram' };
+const style = { process: 'rounded', decision: 'solid', start: 'solid', data: 'solid' };
+
 export function graphvizSource(value: DiagramIR) {
   const diagram = diagramSchema.parse(value);
-  const shape = { process: 'box', decision: 'diamond', start: 'ellipse', data: 'parallelogram' };
-  return `digraph Figure { graph [rankdir=TB,bgcolor="white",pad="0.4",nodesep="0.6",ranksep="0.7"]; node [fontname="Arial",fontsize=16,color="black",penwidth=1.4,margin="0.2,0.15"]; edge [fontname="Arial",fontsize=13,color="black",penwidth=1.4];
-${diagram.nodes.map(n => `${n.id} [shape=${shape[n.shape]},label=${JSON.stringify(n.label)}];`).join('\n')}
-${diagram.edges.map(e => `${e.from} -> ${e.to} [label=${JSON.stringify(e.label)}];`).join('\n')}
+  return `digraph Figure {
+  graph [rankdir=TB,bgcolor="white",pad="0.55",nodesep="0.85",ranksep="0.9",splines="curved"];
+  node [shape=box,style="setlinewidth(1.6)",fontname="Helvetica,Arial",fontsize=15,color="black",fontcolor="black",penwidth=1.6,margin="0.24,0.16"];
+  edge [fontname="Helvetica,Arial",fontsize=12,fontcolor="black",color="black",penwidth=1.5,arrowsize="0.8",labeldistance="2.2",labelangle="28"];
+${diagram.nodes.map(n => `  ${n.id} [shape=${shape[n.shape]},style="${style[n.shape]},setlinewidth(1.6)",label=${JSON.stringify(n.label)}];`).join('\n')}
+${diagram.edges.map(e => `  ${e.from} -> ${e.to}${e.label ? ` [label=${JSON.stringify(e.label)}]` : ''};`).join('\n')}
 }`;
 }
+
 export function mermaidSource(value: DiagramIR) {
   const diagram = diagramSchema.parse(value);
   const label = (text: string) => text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\r\n]/g, ' ');

@@ -73,3 +73,21 @@ test('chat accepts a Markdown file and exposes camera capture', async ({ page })
   expect(attachments).toMatchObject([{ name: 'notes.md', kind: 'markdown', text: 'Synthetic attached note.' }]);
   await expect(page.getByRole('button', { name: 'Solve step by step', exact: true })).toBeVisible();
 });
+
+test('the active model can be switched from the composer', async ({ page }) => {
+  await page.route('**/api/session', route => route.fulfill({ json: { connected: true } }));
+  await page.route('**/api/providers/validate', route => route.fulfill({ json: { models: ['test/chat', 'test/chat-fast'], verifiedAt: new Date().toISOString() } }));
+  const sent: string[] = [];
+  await page.route('**/api/chat', async route => {
+    const input = route.request().postDataJSON(); sent.push(input.connection.model);
+    await route.fulfill({ contentType: 'application/x-ndjson', body: JSON.stringify({ type: 'done', requestId: input.requestId, text: 'Synthetic model answer.', documentation: { sources: [] } }) + '\n' });
+  });
+  await page.goto('/workspace'); await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
+  await connectProvider(page);
+  const switcher = page.getByLabel('Active model');
+  await expect(switcher).toBeEnabled(); await switcher.selectOption('test/chat-fast');
+  await page.getByRole('textbox', { name: 'Your document request' }).fill('Which model answered?');
+  await page.getByRole('textbox', { name: 'Your document request' }).press('Enter');
+  await expect(page.getByRole('log')).toContainText('Synthetic model answer.');
+  expect(sent).toEqual(['test/chat-fast']);
+});

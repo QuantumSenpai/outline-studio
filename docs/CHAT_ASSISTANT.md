@@ -6,6 +6,7 @@ Chat is a general, streaming conversation mode in the existing workspace. It is 
 - Greetings, explanations, coding help and step-by-step assignment help with worked reasoning and a clearly formatted answer.
 - Quick actions prefill solve/explain/draft/check prompts; the user can edit them before sending.
 - Up to 20 recent messages and 60,000 characters of bounded context; the full transcript stays local.
+- Manual model switching: the composer shows a selector with the models your connected provider actually returned; the choice applies to the next request or document stage.
 - Optional Context7 lookup sends only the separate public question and library hint, never the full chat or keys.
 - Attachments: images (file or camera), Markdown/TXT, PDF and DOCX. Markdown/DOCX text is read in the browser; PDF text is extracted by the pinned `pdf-parse` dependency on the same-origin server. Images are resized to 1280 px and JPEG-compressed before upload.
 - Images are forwarded as model image parts only when the user enables the vision option; the chosen model must support images. Extracted attachment text always goes with the message; raw bytes are never stored in IndexedDB or ZIP backups.

@@ -58,7 +58,7 @@ export function ProviderSetup({ open, onOpenChange }: { open: boolean; onOpenCha
 
   function save() {
     if (!models.includes(model) || !authorized) return;
-    state.put({ provider, key, model, authorized: true, validated: true, verifiedAt });
+    state.put({ provider, key, model, authorized: true, validated: true, verifiedAt, models });
     setKey(''); setModels([]); setAuthorized(false); setError('');
     setStep('done');
   }
@@ -74,7 +74,7 @@ export function ProviderSetup({ open, onOpenChange }: { open: boolean; onOpenCha
       if (!result.models.includes(connection.model)) throw new Error('Saved model is no longer listed. Configure a new model above.');
       const latest = useProviders.getState().connections.find(item => item.provider === connection.provider);
       if (!latest || latest.key !== connection.key || latest.model !== connection.model || !latest.authorized) return;
-      state.put({ ...connection, validated: true, verifiedAt: result.verifiedAt });
+      state.put({ ...connection, validated: true, verifiedAt: result.verifiedAt, models: result.models.filter(isCandidateTextModel) });
     } catch (error) { if (!controller.signal.aborted) setError(messageFrom(error)); }
     finally { if (!controller.signal.aborted) setPending(false); }
   }

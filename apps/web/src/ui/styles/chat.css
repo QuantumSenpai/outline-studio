@@ -1,6 +1,10 @@
-.conversation-mode { display: flex; gap: 4px; padding: 9px 10px 0; }
-.conversation-mode button { border-radius: 6px; padding: 8px 12px; font-size: .8rem; color: var(--muted); }
+.composer-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 14px 0; }
+.conversation-mode { display: flex; gap: 4px; }
+.conversation-mode button { border-radius: 6px; padding: 7px 11px; font-size: .78rem; color: var(--muted); }
 .conversation-mode button[aria-pressed=true] { background: #eeece6; color: var(--ink); }
+.model-switcher { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: .72rem; color: var(--muted); }
+.model-switcher span { text-transform: uppercase; letter-spacing: .08em; }
+.model-switcher select { min-height: 32px; max-width: 210px; padding: 4px 9px; font-size: .74rem; text-overflow: ellipsis; }
 .chat-documentation { margin: 4px 14px 0; font-size: .8rem; }
 .chat-documentation summary { font-size: .8rem; padding-block: 7px; }
 .chat-documentation label:not(.check-label) { display: grid; gap: 4px; margin-top: 9px; }
@@ -11,13 +15,35 @@
 .message details ol { padding-left: 20px; font-size: .85rem; }
 .message details a { color: var(--indigo); overflow-wrap: anywhere; text-decoration: underline; }
 .chat-retry { margin: 8px 24px; font-size: .85rem; }
-.chat-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px; }
-.chat-actions button { border: 1px solid #ded9cf; border-radius: 999px; padding: 5px 10px; font-size: .75rem; color: var(--ink); background: #fff; }
+.suggestion-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 14px 16px 0; }
+.suggestion-pills button { border: 1px solid #ded9cf; border-radius: 999px; padding: 7px 13px; font-size: .76rem; background: var(--white); color: var(--ink); }
 .attachments { margin: 6px 14px 0; font-size: .8rem; }
 .attachment-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-.attachment-actions button { border: 1px solid #ded9cf; border-radius: 6px; padding: 6px 10px; }
+.attachment-actions button { border: 1px solid #ded9cf; border-radius: 6px; padding: 6px 10px; color: var(--ink); background: var(--white); }
 .attachment-list, .message-attachments { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
-.attachment-list li, .message-attachments li { display: flex; align-items: center; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
-.attachment-list button { margin-left: auto; padding: 0 6px; font-size: 1.1rem; }
+.attachment-list li, .message-attachments li { display: flex; align-items: center; gap: 8px; min-width: 0; overflow-wrap: anywhere; animation: chip-in 260ms var(--ease-out) backwards; }
+.attachment-list li:nth-child(2), .message-attachments li:nth-child(2) { animation-delay: 40ms; }
+.attachment-list li:nth-child(3), .message-attachments li:nth-child(3) { animation-delay: 80ms; }
+.attachment-list li:nth-child(n+4) { animation-delay: 120ms; }
+.attachment-list button { margin-left: auto; padding: 0 6px; font-size: 1.1rem; color: var(--muted); }
 .message-attachments details pre { max-height: 160px; overflow: auto; white-space: pre-wrap; font-size: .75rem; }
-@media (hover: hover) { .conversation-mode button:hover, .chat-actions button:hover, .attachment-actions button:hover { background: #f1efea; } }
+.upload-progress { position: relative; display: block; width: 52px; height: 3px; border-radius: 3px; overflow: hidden; background: #ded9cf; }
+.upload-progress span { position: absolute; inset: 0 auto 0 0; width: 40%; border-radius: 3px; background: var(--indigo); animation: progress 1s ease-in-out infinite; }
+.conversation-mode button, .attachment-actions button, .suggestion-pills button, .model-switcher select { transition: background var(--fast) var(--ease-out), color var(--fast), border-color var(--fast), transform 100ms var(--ease-out), box-shadow var(--fast); }
+.conversation-mode button:active, .attachment-actions button:active, .suggestion-pills button:active { transform: translateY(1px) scale(.98); }
+.suggestion-pills button { animation: pill-in 380ms var(--ease-out) backwards; }
+.suggestion-pills button:nth-child(2) { animation-delay: 40ms; }
+.suggestion-pills button:nth-child(3) { animation-delay: 80ms; }
+.suggestion-pills button:nth-child(4) { animation-delay: 120ms; }
+@keyframes pill-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes chip-in { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes progress { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+@media (hover: hover) and (pointer: fine) {
+  .conversation-mode button:hover, .suggestion-pills button:hover, .attachment-actions button:hover { background: #f1efea; }
+  .suggestion-pills button:hover, .attachment-actions button:hover { border-color: #b7b4c1; box-shadow: 0 3px 12px #1e20300d; }
+}
+@media (max-width: 768px) { .suggestion-pills { justify-content: flex-start; padding-inline: 4px; } .model-switcher span { display: none; } .model-switcher select { max-width: 150px; } }
+@media (prefers-reduced-motion: reduce) {
+  .suggestion-pills button, .attachment-list li, .message-attachments li { animation: none; }
+  .upload-progress span { animation-duration: 2s; }
+}

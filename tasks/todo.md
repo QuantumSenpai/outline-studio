@@ -25,3 +25,11 @@ Release exclusions remain explicit in docs/COMPLETION_REPORT.md: live inference,
 - [x] Attachment picker (files + camera) and chat UI integration; no raw base64 persisted locally
 - [x] Unit/browser tests, privacy/README/docs updates, lint/typecheck/test/build verification
 - [x] Commit the finished feature with a descriptive message (no push/deploy unless explicitly requested)
+
+## Playground refresh (current)
+- [x] Cleaner Chat layout: rail hidden, concise tabs, no clipped mobile/desktop intro
+- [x] Manual model switching from validated provider model lists
+- [x] Bounded upload/control/content/footer motion with reduced-motion fallbacks
+- [x] Rotating suggestion pills and clearer diagram source/preview
+- [x] Tests/docs/verification: 51 unit, 32 browser, typecheck, lint, build
+- [ ] Commit locally; push/deploy only on explicit request

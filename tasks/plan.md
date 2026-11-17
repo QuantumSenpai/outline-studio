@@ -30,3 +30,6 @@ Architecture decisions:
 - Assignment help is prompt-level (step-by-step, show working, format answers), not a new autonomous agent loop; exportable deliverables still use Create document.
 
 Slices: (1) schema + extraction utilities; (2) server prompt/PDF/vision plumbing; (3) attachment picker + chat integration; (4) tests, docs, verification. Checkpoints after each slice: lint, typecheck, focused tests.
+
+## Playground refresh — 2026-11-18 (current)
+Reference is structural only (Kimi's centred composer and suggestion pills); keep the project's paper palette, brand and copy. Vertical slices: (1) cleaner chat layout with rail hidden in Chat mode and stage tabs only when active; (2) manual model switching from validated provider model lists; (3) bounded motion for uploads, controls, tab/content reveals and footer scroll; (4) GraphViz readability pass and diagram unit coverage. Verify after each slice with typecheck/lint/tests, then full production Chromium at 390/1440. Record scope and exclusions in docs/PLAYGROUND_REFRESH.md. Do not push/deploy unless explicitly requested.

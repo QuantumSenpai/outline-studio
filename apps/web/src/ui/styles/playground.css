@@ -1,0 +1,29 @@
+.workspace-body.chat-mode { grid-template-columns: minmax(0, 1fr); }
+.chat-mode .transcript { padding-top: 20px; }
+.chat-mode .conversation-intro { max-width: 720px; margin-inline: auto; text-align: center; padding-top: clamp(18px, 5vh, 56px); }
+.chat-mode .conversation-intro .workspace-symbol { display: none; }
+.chat-mode .suggestions { margin-inline: auto; }
+.chat-mode .composer, .chat-mode .suggestion-pills { width: min(760px, calc(100% - 48px)); margin-inline: auto; max-width: 760px; }
+.chat-mode .composer-note { width: min(760px, calc(100% - 48px)); margin-inline: auto; }
+.workspace-tab-content[data-state=active] { animation: pane-in 200ms var(--ease-out) both; }
+.conversation-intro h2 { animation: rise 480ms var(--ease-out) both; }
+.conversation-intro > p { animation: rise 480ms var(--ease-out) 70ms both; }
+.conversation-intro .suggestions button, .conversation-intro .text-link { animation: rise 480ms var(--ease-out) 120ms both; }
+.message { animation: rise 220ms var(--ease-out) both; }
+.composer { transition: border-color var(--normal) var(--ease-out), box-shadow var(--normal) var(--ease-out); }
+.composer:focus-within { border-color: #9f9bb5; box-shadow: 0 6px 24px #1e203014; }
+.workspace-tools > button, .workspace-tabs button, .coworker-button, .rail-secondary button { transition: background var(--fast) var(--ease-out), color var(--fast), border-color var(--fast), transform 100ms var(--ease-out); }
+.workspace-tools > button:active, .coworker-button:active { transform: translateY(1px); }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pane-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 768px) {
+  .chat-mode .transcript { padding-top: 16px; }
+  .chat-mode .conversation-intro { padding-top: 28px; text-align: left; }
+  .chat-mode .conversation-intro > p { display: none; }
+  .chat-mode .attachment-actions > .small { display: none; }
+  .chat-mode .composer, .chat-mode .suggestion-pills, .chat-mode .composer-note { width: calc(100% - 24px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-tab-content[data-state=active], .conversation-intro h2, .conversation-intro > p,
+  .conversation-intro .suggestions button, .conversation-intro .text-link, .message { animation: none; }
+}

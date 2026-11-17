@@ -10,10 +10,12 @@ import { intakeReply } from '@/domain/pipeline/intake';
 import { documentationQuerySchema, type ChatAttachment, type DocumentationQuery } from '@outline-studio/schemas';
 import { DocumentationOptions, type DocumentationSettings } from './DocumentationOptions';
 import { AttachmentPicker } from './AttachmentPicker';
+import { ModelSwitcher } from './ModelSwitcher';
+import { SuggestionPills } from './SuggestionPills';
 import { ChatText } from './ChatText';
 
-export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onResume, openProvider, onChat, chatPartial, chatError, attachments, onAddFiles, onRemoveAttachment, useImages, onUseImages }:
-  { busy: boolean; onPlan: () => void; onCancel: () => void; onAccept: () => void; onReview: () => void; onResume: () => void; openProvider: () => void; onChat: (documentation?: DocumentationQuery, retry?: boolean) => void; chatPartial: string; chatError: string; attachments: ChatAttachment[]; onAddFiles: (files: File[]) => void; onRemoveAttachment: (id: string) => void; useImages: boolean; onUseImages: (value: boolean) => void }) {
+export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onResume, openProvider, onChat, chatPartial, chatError, attachments, onAddFiles, onRemoveAttachment, useImages, onUseImages, preparing }:
+  { busy: boolean; onPlan: () => void; onCancel: () => void; onAccept: () => void; onReview: () => void; onResume: () => void; openProvider: () => void; onChat: (documentation?: DocumentationQuery, retry?: boolean) => void; chatPartial: string; chatError: string; attachments: ChatAttachment[]; onAddFiles: (files: File[]) => void; onRemoveAttachment: (id: string) => void; useImages: boolean; onUseImages: (value: boolean) => void; preparing: boolean }) {
   const { checkpoint, patch, setTab, message } = useWorkspace();
   const [documentation, setDocumentation] = useState<DocumentationSettings>({ enabled: false, query: '', library: '' });
   const [inputError, setInputError] = useState('');
@@ -63,10 +65,9 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
     {(chatError || inputError) && <p className="notice error" role="alert">{inputError || chatError}</p>}
     {checkpoint.mode === 'chat' && !busy && checkpoint.messages.at(-1)?.role === 'user' && <button className="text-link chat-retry" onClick={() => onChat(undefined, true)}>Retry saved message</button>}
     <form className="composer" onSubmit={e => { e.preventDefault(); submit(); }}><label htmlFor="brief-composer" className="sr-only">Your document request</label>
-      <div className="conversation-mode" role="group" aria-label="Conversation mode">{(['chat', 'document'] as const).map(mode => <button key={mode} type="button" aria-pressed={checkpoint.mode === mode} disabled={busy} onClick={() => { patch({ mode }); setInputError(''); }}>{mode === 'chat' ? 'Chat' : 'Create document'}</button>)}</div>
-      {checkpoint.mode === 'chat' && <><div className="chat-actions" role="group" aria-label="Assignment help">{[['Solve step by step', 'Solve this step by step and show all working.'], ['Explain simply', 'Explain this in simple terms with an example.'], ['Draft an answer', 'Draft a clear answer I can adapt, with headings.'], ['Check my work', 'Check this work for errors and explain each correction.']].map(([label, prompt]) =>
-        <button key={label} type="button" disabled={busy} onClick={() => patch({ composer: prompt })}>{label}</button>)}</div>
-        <AttachmentPicker attachments={attachments} onAdd={onAddFiles} onRemove={onRemoveAttachment} busy={busy} useImages={useImages} onUseImages={onUseImages} />
+      <div className="composer-top"><div className="conversation-mode" role="group" aria-label="Conversation mode">{(['chat', 'document'] as const).map(mode => <button key={mode} type="button" aria-pressed={checkpoint.mode === mode} disabled={busy} onClick={() => { patch({ mode }); setInputError(''); }}>{mode === 'chat' ? 'Chat' : 'Create document'}</button>)}</div>
+        <ModelSwitcher disabled={busy} /></div>
+      {checkpoint.mode === 'chat' && <><AttachmentPicker attachments={attachments} onAdd={onAddFiles} onRemove={onRemoveAttachment} busy={busy} useImages={useImages} onUseImages={onUseImages} preparing={preparing} />
         <DocumentationOptions value={documentation} onChange={setDocumentation} disabled={busy} /></>}
       <textarea id="brief-composer" value={checkpoint.composer} onChange={e => patch({ composer: e.target.value })} rows={3} maxLength={12000}
         placeholder="Send a message or describe your document…" disabled={busy} onKeyDown={event => {
@@ -74,6 +75,7 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
         }} />
       <div className="composer-bottom"><span>Local drafts · {checkpoint.composer.length.toLocaleString()} / 12,000</span>{busy ? <Button type="button" variant="outline" onClick={onCancel}><Square size={14} /> Stop</Button>
         : <Button type="submit" disabled={!checkpoint.composer.trim() || checkpoint.messages.length >= 199 && (checkpoint.mode === 'chat' || Boolean(intakeReply(checkpoint.composer)))}>Send message<ArrowUp size={16} /></Button>}</div>
-    </form><p className="composer-note">Enter to send · Shift+Enter for a new line. {checkpoint.mode === 'chat' ? 'Chat uses up to 20 recent messages within its context limit; the full transcript stays local.' : 'A detailed request creates an outline and archives an existing draft.'}</p>
+    </form>{checkpoint.mode === 'chat' && <SuggestionPills onSelect={text => patch({ composer: text })} disabled={busy} />}
+    <p className="composer-note">Enter to send · Shift+Enter for a new line. {checkpoint.mode === 'chat' ? 'Chat uses up to 20 recent messages within its context limit; the full transcript stays local.' : 'A detailed request creates an outline and archives an existing draft.'}</p>
   </div>;
 }

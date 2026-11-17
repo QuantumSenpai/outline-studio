@@ -14,7 +14,7 @@ export function useChat() {
   const checkpoint = useWorkspace(state => state.checkpoint);
   const request = useRef<AbortController | null>(null);
   const [pending, setPending] = useState(false); const [partial, setPartial] = useState(''); const [error, setError] = useState('');
-  const [attachments, setAttachments] = useState<ChatAttachment[]>([]); const [useImages, setUseImages] = useState(true);
+  const [attachments, setAttachments] = useState<ChatAttachment[]>([]); const [useImages, setUseImages] = useState(true); const [preparing, setPreparing] = useState(false);
   const cancel = useCallback(() => {
     if (!request.current) return;
     request.current.abort(); request.current = null; setPending(false); setPartial('');
@@ -22,8 +22,10 @@ export function useChat() {
   }, []);
   useEffect(() => () => cancel(), [checkpoint?.runId, checkpoint?.revision, cancel]);
   async function addFiles(files: File[]) {
+    setPreparing(true);
     try { const prepared = await prepareAttachments(files); setAttachments(current => [...current, ...prepared].slice(0, 6)); setError(''); }
     catch (failure) { setError(messageFrom(failure)); }
+    finally { setPreparing(false); }
   }
   function removeAttachment(id: string) { setAttachments(current => current.filter(item => item.id !== id)); }
   async function send(documentation?: DocumentationQuery, retry = false) {
@@ -67,5 +69,5 @@ export function useChat() {
     } catch (failure) { if (request.current === controller) setError(messageFrom(failure)); }
     finally { if (request.current === controller) { request.current = null; setPending(false); setPartial(''); } }
   }
-  return { busy: pending, partial, error, send, cancel, attachments, addFiles, removeAttachment, useImages, setUseImages };
+  return { busy: pending, partial, error, send, cancel, attachments, addFiles, removeAttachment, useImages, setUseImages, preparing };
 }

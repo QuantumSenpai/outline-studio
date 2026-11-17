@@ -8,6 +8,7 @@ import '@/ui/styles/public.css';
 import '@/ui/styles/workspace.css';
 import '@/ui/styles/providers.css';
 import '@/ui/styles/chat.css';
+import '@/ui/styles/playground.css';
 import { Header } from '@/ui/components/shell/Header';
 import { Footer } from '@/ui/components/shell/Footer';
 import { Preferences } from '@/ui/components/shell/Preferences';

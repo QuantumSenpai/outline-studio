@@ -8,7 +8,7 @@ Implemented application, with release limitations documented in [completion repo
 
 ## Chat assistant
 
-Open Workspace for a streaming, ChatGPT-style conversation with your selected provider. Chat keeps the full transcript locally and sends a bounded recent context. It handles greetings, explanations, coding and step-by-step assignment help. Quick actions can prefill a solving, explanation, drafting or checking prompt. Switch to Create document for accepted outlines, coworkers and coordinated exports; chatting does not overwrite accepted documents.
+Open Workspace for a streaming, ChatGPT-style conversation with your selected provider. A compact model selector in the composer lets you switch between the models your provider returned. Chat keeps the full transcript locally and sends a bounded recent context. It handles greetings, explanations, coding and step-by-step assignment help. Quick actions can prefill a solving, explanation, drafting or checking prompt. Switch to Create document for accepted outlines, coworkers and coordinated exports; chatting does not overwrite accepted documents.
 
 Attach up to 6 files per message (4 MB each): images, Markdown/TXT, PDF and DOCX. Use Camera for a phone/photo capture. Markdown and DOCX text is read in your browser, PDF text on our same-origin server, and images are resized before upload. Attached text is sent with your message; images are only sent to the model when you enable the vision option and the chosen model supports images. Only file names and extracted text are saved locally; raw file bytes are never stored in IndexedDB or project backups.
 
