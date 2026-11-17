@@ -76,4 +76,3 @@ export function DoneStep({ onClose }: { onClose: (open: boolean) => void }) {
     <Button className="w-full" onClick={() => onClose(false)}>Start generating</Button>
   </div>;
 }
-

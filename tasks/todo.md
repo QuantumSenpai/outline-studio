@@ -10,9 +10,11 @@
 - [ ] Setup guide, environment checklist and honest limitations updated.
 
 ## Completion continuation
-- [ ] Project repository, migration and identity-safe autosave
-- [ ] Project library and snapshot history UI
-- [ ] Validated ZIP, Markdown, historical and retained file exports
-- [ ] Backend/provider/research and renderer defect coverage
-- [ ] Legal/setup/metadata reconciliation
-- [ ] Measured security/performance/viewer/browser verification and completion report
+- [x] Project repository, migration and identity-safe autosave
+- [x] Project library and snapshot history UI
+- [x] Validated ZIP, Markdown, historical and retained file exports
+- [x] Backend/provider/research and renderer defect coverage
+- [x] Legal/setup/metadata reconciliation
+- [x] Measured security/performance/viewer/browser verification and completion report
+
+Release exclusions remain explicit in docs/COMPLETION_REPORT.md: live inference, operator/legal details, full Office/cross-browser/physical-device coverage and externally verified deployment operations. Checked continuation items mean implementation/evidence was recorded, not unrestricted release certification.

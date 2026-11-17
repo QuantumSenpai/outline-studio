@@ -29,5 +29,15 @@ try {
     browser: browser.version(), methodology: 'Local production, new Chromium profile, 1440x1000, no throttling. Automation click-to-dialog includes protocol overhead. Health timings exclude DB/provider calls; no Vercel cold-start claim.',
     ...resources, scriptTransferBytes: resources.scripts.reduce((total, item) => total + item.transfer, 0), clickToDialogMs, health };
   await mkdir('../../qa-output', { recursive: true }); await writeFile('../../qa-output/performance.json', JSON.stringify(result, null, 2));
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 }); await page.goto(`${origin}/workspace`);
+    await page.evaluate(() => document.fonts.ready);
+    await page.getByText('Saved on this device', { exact: true }).waitFor();
+    await page.screenshot({ path: `../../qa-output/workspace-clean-${width}.png`, fullPage: true });
+    await page.getByRole('button', { name: 'Connect AI', exact: true }).click();
+    await page.getByRole('dialog').waitFor();
+    await page.screenshot({ path: `../../qa-output/provider-clean-${width}.png`, animations: 'disabled' });
+    await page.getByRole('button', { name: 'Close dialog' }).click();
+  }
   process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 } finally { await browser.close(); }
