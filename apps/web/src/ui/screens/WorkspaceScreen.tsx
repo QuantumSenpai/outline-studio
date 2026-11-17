@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useState } from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { Database, KeyRound, Settings2, ArrowLeft, WifiOff } from 'lucide-react';
@@ -21,14 +22,15 @@ import { messageFrom } from '@/lib/api';
 
 const DocumentView = dynamic(() => import('../components/workspace/DocumentView').then(m => m.DocumentView), { loading: () => <p className="notice">Opening document preview…</p> });
 const ExportPanel = dynamic(() => import('../components/workspace/ExportPanel').then(m => m.ExportPanel), { loading: () => <p className="notice">Opening download tools…</p> });
+const VersionHistory = dynamic(() => import('../components/projects/VersionHistory').then(m => m.VersionHistory));
 const ResearchPanel = dynamic(() => import('../components/workspace/ResearchPanel').then(m => m.ResearchPanel));
-const tabs = [['conversation','Conversation'],['document','Document'],['planner','Planner'],['writer','Writer'],['diagram','Diagram designer'],['reviewer','Reviewer'],['researcher','Researcher'],['exporter','Exporter']] as const;
+const tabs = [['conversation','Conversation'],['document','Document'],['planner','Planner'],['writer','Writer'],['diagram','Diagram designer'],['reviewer','Reviewer'],['researcher','Researcher'],['exporter','Exporter'],['history','History']] as const;
 
-export function WorkspaceScreen({ style }: { style: StyleId }) {
-  useCheckpoint(style);
+export function WorkspaceScreen({ style, projectId, fresh = false }: { style: StyleId; projectId?: string; fresh?: boolean }) {
+  const loaded = useCheckpoint(style, projectId, fresh);
   const store = useWorkspace(); const providers = useProviders(); const pipeline = usePipeline(); const online = useOnline();
   const [providerOpen, setProviderOpen] = useState(false); const [styleOpen, setStyleOpen] = useState(false); const [dataOpen, setDataOpen] = useState(false);
-  if (!store.hydrated || !store.checkpoint) return <main id="main" className="page-container empty-page" aria-busy="true"><h1>Opening your studio.</h1><p>Loading local drafts and checkpoints…</p></main>;
+  if (!loaded || !store.hydrated || !store.checkpoint) return <main id="main" className="page-container empty-page" aria-busy="true"><h1>Opening your studio.</h1><p>Loading local drafts and checkpoints…</p></main>;
   const { checkpoint, activeTab, setTab } = store;
   function requireProvider(action: () => void) {
     if (!online) { store.message('You are offline. Review and edit local work now; reconnect before generating.'); return; }
@@ -39,7 +41,7 @@ export function WorkspaceScreen({ style }: { style: StyleId }) {
     requireProvider(() => pipeline.send({ type: activeTab === 'planner' ? 'PLAN' : activeTab === 'reviewer' ? 'REVIEW' : 'COMPOSE' }));
   }
   const stage = stageNameSchema.safeParse(activeTab);
-  return <main id="main" className="workspace-shell"><header className="workspace-toolbar"><div><h1>Workspace</h1><p>{checkpoint.outline?.title || 'A fresh page, a shared direction.'}</p></div>
+  return <main id="main" className="workspace-shell"><header className="workspace-toolbar"><div><h1>Workspace</h1><Link className="text-link small" href="/projects">Local projects</Link><p>{checkpoint.outline?.title || 'A fresh page, a shared direction.'}</p><span role="status" className="small muted">{store.saveState === 'saved' ? 'Saved on this device' : store.saveState === 'saving' ? 'Saving locally…' : store.saveState === 'failed' ? 'Not saved · export a backup' : 'Opening local storage…'}</span></div>
     <div className="workspace-tools"><button aria-label={`Document style settings · ${styles.find(s => s.id === checkpoint.settings.style)?.name}`} onClick={() => setStyleOpen(true)} disabled={pipeline.busy}><Settings2 size={16} /><span>{styles.find(s => s.id === checkpoint.settings.style)?.name}</span><small className="toolbar-short-label">Style</small></button>
       <button aria-label={providers.primary ? `${providers.primary} connected` : 'Connect AI'} onClick={() => setProviderOpen(true)} disabled={pipeline.busy}><KeyRound size={16} /><span>{providers.primary ? `${providers.primary} connected` : 'Connect AI'}</span><small className="toolbar-short-label">{providers.primary ?? 'AI'}</small></button>
       <button aria-label="Data controls" onClick={() => setDataOpen(true)} disabled={pipeline.busy}><Database size={16} /><span>Data controls</span><small className="toolbar-short-label">Data</small></button></div></header>
@@ -53,6 +55,7 @@ export function WorkspaceScreen({ style }: { style: StyleId }) {
       <Tabs.Content value="document" className="workspace-tab-content scroll-panel"><DocumentView busy={pipeline.busy} /></Tabs.Content>
       {stage.success && <Tabs.Content value={stage.data} className="workspace-tab-content scroll-panel"><CoworkerPanel stage={stage.data} busy={pipeline.busy} onRetry={retry} onCancel={pipeline.cancel} /></Tabs.Content>}
       <Tabs.Content value="researcher" className="workspace-tab-content scroll-panel"><ResearchPanel busy={pipeline.busy} /></Tabs.Content>
+      <Tabs.Content value="history" className="workspace-tab-content scroll-panel"><VersionHistory /></Tabs.Content>
       <Tabs.Content value="exporter" className="workspace-tab-content scroll-panel"><ExportPanel busy={pipeline.busy} /></Tabs.Content>
     </Tabs.Root></div>
     {activeTab !== 'conversation' && <button className="mobile-return" onClick={() => setTab('conversation')}><ArrowLeft size={16} /> Main conversation</button>}

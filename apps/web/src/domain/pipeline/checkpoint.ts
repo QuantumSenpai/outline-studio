@@ -7,7 +7,7 @@ export const taskSchema = z.object({ stage: stageNameSchema,
   summary: z.string().max(2000), partial: z.string().max(90000).default(''),
 });
 export const checkpointSchema = z.object({
-  version: z.literal(1), runId: z.uuid(), revision: z.number().int().min(1).max(1000),
+  version: z.literal(1), projectId: z.uuid().optional(), runId: z.uuid(), revision: z.number().int().min(1).max(1000),
   brief: z.string().max(12000), composer: z.string().max(12000).default(''), settings: settingsSchema, outline: outlineSchema.optional(),
   outlineAccepted: z.boolean(), document: documentSchema.optional(), diagram: diagramSchema.optional(),
   review: reviewSchema.optional(), sources: z.array(sourceSchema).max(20),
@@ -17,7 +17,7 @@ export const checkpointSchema = z.object({
 export type Checkpoint = z.infer<typeof checkpointSchema>;
 export type Task = z.infer<typeof taskSchema>;
 export function newCheckpoint(style: 'academic' | 'professional' | 'research' | 'solutions' = 'academic'): Checkpoint {
-  return { version: 1, runId: crypto.randomUUID(), revision: 1, brief: '', settings: settingsSchema.parse({ style }),
+  return { version: 1, projectId: crypto.randomUUID(), runId: crypto.randomUUID(), revision: 1, brief: '', settings: settingsSchema.parse({ style }),
     composer: '', outlineAccepted: false, sources: [], tasks: ['planner', 'writer', 'diagram', 'reviewer'].map(stage =>
       taskSchema.parse({ stage, status: 'queued', attempt: 0, summary: 'Waiting for the main request.' })),
     messages: [], updatedAt: new Date().toISOString() };

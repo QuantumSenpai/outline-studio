@@ -3,7 +3,7 @@
 import { useMachine } from '@xstate/react';
 import { workspaceMachine } from '@/domain/pipeline/workspaceMachine';
 import { newCheckpoint } from '@/domain/pipeline/checkpoint';
-import { localDatabase } from '@/adapters/storage/database';
+import { projectIdentity, saveProject, snapshotProject } from '@/adapters/storage/projects';
 import { useWorkspace } from '../stores/workspaceStore';
 
 export function usePipeline() {
@@ -20,9 +20,11 @@ export function usePipeline() {
   async function plan() {
     const store = useWorkspace.getState(); const checkpoint = store.checkpoint;
     if (!checkpoint || busy || checkpoint.composer.trim().length < 10) return;
-    if (checkpoint.brief || checkpoint.document) await localDatabase.checkpoints.put({ id: `${checkpoint.runId}:${checkpoint.revision}`, data: checkpoint })
-      .catch(() => { throw new Error('Could not archive this draft. Export it before starting a new request.'); });
+    if (checkpoint.revision >= 1000) throw new Error('Revision limit reached. Duplicate this project to continue.');
+    await saveProject(checkpoint);
+    if (checkpoint.brief || checkpoint.document) await snapshotProject(checkpoint, 'Before new request');
     const next = newCheckpoint(checkpoint.settings.style);
+    next.projectId = projectIdentity(checkpoint); next.revision = checkpoint.revision + 1;
     next.settings = checkpoint.settings; next.brief = checkpoint.composer.trim(); next.sources = checkpoint.sources;
     next.messages = [{ id: crypto.randomUUID(), role: 'user', text: next.brief }];
     store.hydrate(next);

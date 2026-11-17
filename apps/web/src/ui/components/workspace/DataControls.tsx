@@ -25,8 +25,9 @@ export function DataControls({ open, onOpenChange }: { open: boolean; onOpenChan
   async function clearLocal() {
     if (!confirm) { setStatus('Select the confirmation checkbox first.'); return; }
     try {
-      await localDatabase.transaction('rw', localDatabase.checkpoints, localDatabase.vault, async () => {
+      await localDatabase.transaction('rw', localDatabase.checkpoints, localDatabase.vault, localDatabase.projects, localDatabase.versions, localDatabase.files, async () => {
         await localDatabase.checkpoints.clear(); await localDatabase.vault.clear();
+        await localDatabase.projects.clear(); await localDatabase.versions.clear(); await localDatabase.files.clear();
       });
       lock(); hydrate(newCheckpoint()); setArchives([]); setConfirm(false); setStatus('Local drafts, archives and encrypted vault deleted. Memory keys locked.');
     } catch (error) { setStatus(messageFrom(error)); }
@@ -41,7 +42,7 @@ export function DataControls({ open, onOpenChange }: { open: boolean; onOpenChan
           if (file.size > 2000000) throw new Error('Choose a project under 2 MB.');
           const parsed = resumeCheckpoint(JSON.parse(await file.text()));
           if (checkpoint) await localDatabase.checkpoints.put({ id: `${checkpoint.runId}:${checkpoint.revision}`, data: checkpoint });
-          hydrate({ ...parsed, runId: crypto.randomUUID(), revision: 1 }); setStatus('Imported locally. No keys were imported. Reconnect before generation.');
+          hydrate({ ...parsed, projectId: crypto.randomUUID(), runId: crypto.randomUUID(), revision: 1, updatedAt: new Date().toISOString() }); setStatus('Imported locally. No keys were imported. Reconnect before generation.');
         } catch { setStatus('This file is not a compatible Outline Studio project. Current work was preserved.'); }
       }} /></label>
       <Button variant="outline" onClick={() => void localDatabase.checkpoints.toArray().then(rows => setArchives(rows.filter(r => r.id !== 'current').map(r => resumeCheckpoint(r.data)))).catch(error => setStatus(messageFrom(error)))}>Show local archives</Button>

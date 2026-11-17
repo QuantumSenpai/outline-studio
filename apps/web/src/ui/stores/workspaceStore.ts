@@ -3,6 +3,7 @@ import type { DocumentIR, DiagramIR, Outline, Review, StageName, DocumentSetting
 import { checkpointSchema, type Checkpoint, type Task } from '@/domain/pipeline/checkpoint';
 
 type WorkspaceState = {
+  saveState: 'loading' | 'saving' | 'saved' | 'failed'; setSaveState: (value: 'loading' | 'saving' | 'saved' | 'failed') => void;
   checkpoint: Checkpoint | null; hydrated: boolean; persistenceError: string; activeTab: string; concurrency: 1 | 2;
   hydrate: (value: Checkpoint) => void; patch: (value: Partial<Checkpoint>) => void;
   task: (stage: StageName, value: Partial<Task>) => void; message: (text: string, role?: 'studio' | 'user') => void;
@@ -12,9 +13,10 @@ type WorkspaceState = {
   setSettings: (settings: DocumentSettings) => void; setSources: (sources: Source[]) => void;
 };
 export const useWorkspace = create<WorkspaceState>((set, get) => ({
+  saveState: 'loading', setSaveState: saveState => set({ saveState }),
   checkpoint: null, hydrated: false, persistenceError: '', activeTab: 'conversation', concurrency: 2,
   hydrate: checkpoint => set({ checkpoint: checkpointSchema.parse(checkpoint), hydrated: true }),
-  patch: value => set(state => ({ checkpoint: state.checkpoint ? checkpointSchema.parse({ ...state.checkpoint, ...value, updatedAt: new Date().toISOString() }) : null })),
+  patch: value => set(state => ({ checkpoint: state.checkpoint ? checkpointSchema.parse({ ...state.checkpoint, ...value, updatedAt: new Date(Math.max(Date.now(), Date.parse(state.checkpoint.updatedAt) + 1)).toISOString() }) : null })),
   task: (stage, value) => {
     const checkpoint = get().checkpoint;
     if (checkpoint) get().patch({ tasks: checkpoint.tasks.map(t => t.stage === stage ? { ...t, ...value } : t) });

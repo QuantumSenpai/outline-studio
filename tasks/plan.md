@@ -11,3 +11,9 @@ The supplied brief is the acceptance specification. No existing SRS or applicabl
 7. Run lint, strict types, tests, production build, accessibility, responsive and performance checks. Record factual results and unverified paths in docs/testing/implementation-report.md.
 
 Design: printed annual direction, seed 760955009. The accepted outline becomes the common spine connecting real document layers. The live public interaction is an explicitly illustrative walkthrough. User palette, fine rules and original SVG illustration take precedence over skill defaults forbidding indigo/rules or demanding unrelated photography. Motion is limited to purposeful sequences per brief.
+
+## Authorized completion continuation — 2026-11-17
+
+The user's completion request supersedes the historical no-commit instruction above and is the current acceptance specification. Preserve the existing stack and working features. No push or deploy. Detailed evidence, dependencies and acceptance checks are tracked in docs/COMPLETION_CHECKLIST.md. Extend this existing plan rather than replacing unfinished historical records.
+
+Implement sequential vertical slices: local project storage and safe migration; project library/autosave; snapshots/history/restore; safe project ZIP and retained files; export/template gaps; backend/provider/research guards; final security/performance/viewer verification and documentation. Commit verified milestones. Unavailable Context7/live credentials/isolated DB/viewers must be recorded, never treated as verified. Do not allow those external limits to block independent local work.

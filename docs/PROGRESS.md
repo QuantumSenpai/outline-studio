@@ -103,3 +103,11 @@
 - No dedicated tooltip/toast subsystem exists in this checkout. Native controls, inline status/validation messages and dialogs were audited.
 - No live provider inference, production database mutations, real API keys, physical devices, screen-reader sessions, cross-browser coverage or exhaustive renderer/document fidelity review. Mocked network failures can emit expected HTTP error console messages; successful route/download flows were checked for unexpected page/console errors.
 - Existing unrelated .gitignore, database client, root dependency/lockfile and neon.ts work is preserved and excluded from the audit commit.
+
+## Completion continuation — milestone 1
+- Read the actual implementation, ADR 005 and historical reports. No standalone SRS was found; several older ADR/setup/test documents are empty and README/env guidance is obsolete. The current user request is the acceptance specification.
+- Added docs/COMPLETION_CHECKLIST.md and extended the existing plan instead of replacing earlier tasks. Preserved unrelated Neon/dependency edits; no merge/rebase or other session agent was active.
+- Added versioned IndexedDB migration preserving v1 checkpoints and the encrypted vault, separate local projects and named snapshots, stale-save rejection, project create/search/rename/duplicate/scoped deletion, visible autosave state and project-aware reload.
+- Added /projects and /history with noindex metadata, workspace History tab, snapshot preview/comparison, Markdown/JSON download and restore as a new revision while preserving the newer draft in history.
+- New requests retain the project identity; streamed partials now check run/revision before mutating the workspace. Full local deletion also clears the new tables.
+- Verification so far: 17 unit tests including v1 migration/vault preservation, restore and stale saves; three browser journeys covering project CRUD/history/reload plus existing archive/vault controls; lint/source rules and strict TypeScript passed. Production build is checked before the milestone commit. Full responsive/production coverage remains a later completion gate.

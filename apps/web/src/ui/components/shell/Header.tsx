@@ -8,7 +8,7 @@ import { Brand } from './Brand';
 import { Button } from '../ui/button';
 import { Modal } from '../ui/dialog';
 
-const links = [['How it works', '/how-it-works'], ['Templates', '/templates'], ['Provider guide', '/providers']] as const;
+const links = [['How it works', '/how-it-works'], ['Templates', '/templates'], ['Projects', '/projects'], ['Provider guide', '/providers']] as const;
 export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();

@@ -1,7 +1,7 @@
 import { type Connection, type StageName, type StageOutput, stageRequestSchema } from '@outline-studio/schemas';
 import { useWorkspace } from '@/ui/stores/workspaceStore';
 import { useProviders } from '@/ui/stores/providerStore';
-import { localDatabase } from '@/adapters/storage/database';
+import { saveProject } from '@/adapters/storage/projects';
 import { eligibleConnections, canFallback } from '@/adapters/providers/fallback';
 import { readStageStream } from '@/adapters/providers/readStageStream';
 import { api, ClientError, connectSession, messageFrom } from '@/lib/api';
@@ -28,10 +28,11 @@ export async function executeStage(stage: StageName, signal: AbortSignal): Promi
     store.task(stage, { status: 'running', attempt, provider: connection.provider, model: connection.model, summary: 'Request sent. Waiting for validated output.', partial: '' });
     try {
       const latest = useWorkspace.getState().checkpoint;
-      if (latest) await localDatabase.checkpoints.put({ id: 'current', data: latest }).catch(() => store.setPersistenceError('Checkpoint storage failed. Export before leaving.'));
+      if (latest) await saveProject(latest).catch(() => store.setPersistenceError('Checkpoint storage failed. Export before leaving.'));
       const response = await api('/stages', request, AbortSignal.any([signal, AbortSignal.timeout(55000)]));
       const result = await readStageStream(response, request, partial => {
-        if (!signal.aborted) store.task(stage, { partial, summary: 'Receiving output. It will be accepted after validation.' });
+        const live = useWorkspace.getState().checkpoint;
+        if (!signal.aborted && live?.runId === current.runId && live.revision === current.revision) store.task(stage, { partial, summary: 'Receiving output. It will be accepted after validation.' });
       });
       signal.throwIfAborted();
       const live = useWorkspace.getState().checkpoint;
