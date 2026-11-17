@@ -2,5 +2,19 @@
   "name": "outline-studio",
   "private": true,
   "version": "0.1.0",
-  "description": "Free, local-first AI assignment orchestrator. Turns a brief or rubric into PPTX, DOCX, PDF and diagrams. Bring your own API key."
+  "description": "Local-first document orchestration. Every format. One flow.",
+  "packageManager": "pnpm@10.28.2",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "dev": "pnpm --filter @outline-studio/web dev",
+    "build": "pnpm --filter @outline-studio/web build",
+    "start": "pnpm --filter @outline-studio/web start",
+    "lint": "pnpm --filter @outline-studio/web lint",
+    "typecheck": "pnpm --filter @outline-studio/web typecheck",
+    "test": "pnpm --filter @outline-studio/web test",
+    "test:e2e": "pnpm --filter @outline-studio/web test:e2e",
+    "db:generate": "pnpm --filter @outline-studio/web db:generate",
+    "db:migrate": "pnpm --filter @outline-studio/web db:migrate",
+    "db:retention": "pnpm --filter @outline-studio/web db:retention"
+  }
 }

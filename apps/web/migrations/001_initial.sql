@@ -1,0 +1,12 @@
+CREATE TABLE guest_sessions (id uuid PRIMARY KEY, expires timestamptz NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX session_expiry_idx ON guest_sessions(expires);
+CREATE TABLE runs (id uuid PRIMARY KEY, owner uuid NOT NULL REFERENCES guest_sessions(id) ON DELETE CASCADE, revision integer NOT NULL CHECK(revision>0), created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX runs_owner_updated_idx ON runs(owner,updated_at,id);
+CREATE TABLE stages (request_id uuid PRIMARY KEY, run_id uuid NOT NULL REFERENCES runs(id) ON DELETE CASCADE, revision integer NOT NULL CHECK(revision>0), stage text NOT NULL CHECK(stage IN ('planner','writer','diagram','reviewer')), attempt integer NOT NULL CHECK(attempt BETWEEN 1 AND 3), fingerprint text NOT NULL, status text NOT NULL CHECK(status IN ('running','completed','failed','cancelled')), provider text NOT NULL, model text NOT NULL, started_at timestamptz NOT NULL DEFAULT now(), ended_at timestamptz);
+CREATE UNIQUE INDEX stage_attempt_idx ON stages(run_id,revision,stage,attempt);
+CREATE INDEX stage_run_status_idx ON stages(run_id,status);
+CREATE TABLE feedback (id uuid PRIMARY KEY, owner uuid NOT NULL REFERENCES guest_sessions(id) ON DELETE CASCADE, category text NOT NULL CHECK(category IN ('idea','problem','experience')), rating integer CHECK(rating BETWEEN 1 AND 5), message text NOT NULL CHECK(length(message) BETWEEN 10 AND 4000), contact text, created_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX feedback_owner_date_idx ON feedback(owner,created_at);
+CREATE INDEX feedback_date_idx ON feedback(created_at);
+CREATE TABLE rate_buckets (key text NOT NULL, "window" integer NOT NULL, count integer NOT NULL DEFAULT 1, PRIMARY KEY(key,"window"));
+CREATE INDEX bucket_window_idx ON rate_buckets("window");

@@ -22,3 +22,8 @@ test-results/
 .dev.vars
 
 .DS_Store
+.next/
+*.tsbuildinfo
+qa-output/
+.taste-skill/
+.vercel/
