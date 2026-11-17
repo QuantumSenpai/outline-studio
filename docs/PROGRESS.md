@@ -68,3 +68,12 @@
 - TypeScript: ✅ No errors
 - ESLint: ✅ No errors
 - Source checks: ✅ Passed
+## Hero composition and motion correction — 2026-11-17
+- Replaced the oversized rotating example card and detached provider guide with a balanced hero grid, compact provider action and one continuous formats/use-case strip.
+- Rebuilt the shrinking SVG composition as responsive, padded document previews. Mobile uses a full-width brief and diagram, keeping text readable without clipping.
+- Fixed the one-shot desktop-only animation: one scoped GSAP sequence assembles brief lines, connections, report, slides and diagram, holds, then repeats. Pause/resume preserves progress; intersection, document visibility and live reduced-motion preferences control playback; cleanup reverts the GSAP context and observers.
+- Reused ProviderSetup and providerStore, restored keyboard focus on dismissal, and used client navigation for the workspace CTA to preserve the configured in-memory provider. No real credentials used in verification.
+- Added five browser regressions covering provider dialog, synthetic connected state and workspace handoff, six responsive widths, reduced motion, animation progression/pause/offscreen behaviour and strip controls.
+- Verified Chromium layouts at 360, 390, 768, 1024, 1440 and 1920 px, including loaded fonts and card/page bounds. Inspected screenshots and multiple animation timestamps. No page/console errors in the inspected hero runs.
+- Checks: lint and source-size/no-any/zero-comment checks, strict TypeScript, 13 unit tests, five hero browser tests, existing public routes/axe/mobile navigation test, production build and git diff whitespace check passed.
+- Scope limits: no live provider validation/inference, physical-device or screen-reader testing, or full workspace end-to-end suite. Existing unrelated database/Neon changes are excluded from this commit.
