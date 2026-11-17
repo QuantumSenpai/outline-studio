@@ -14,7 +14,7 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
   const following = useRef(true); const [atBottom, setAtBottom] = useState(true);
   useEffect(() => {
     const element = transcript.current;
-    if (following.current && element) element.scrollTop = element.scrollHeight;
+    if (following.current && element && (checkpoint?.messages.length || checkpoint?.outline || checkpoint?.review || busy)) element.scrollTop = element.scrollHeight;
   }, [checkpoint?.messages.length, checkpoint?.outline, checkpoint?.review, busy]);
   if (!checkpoint) return null;
   const showResume = checkpoint.outlineAccepted && (!checkpoint.document || !checkpoint.diagram);

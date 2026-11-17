@@ -23,7 +23,7 @@ export async function mockProvider(page: Page, failure?: 'fallback' | 'exhausted
 export async function connectProvider(page: Page, provider='groq') {
   await page.getByRole('button',{name:/Connect AI|groq connected|gemini connected/}).click();
   const dialog = page.getByRole('dialog',{name:'Connect your AI'});
-  await dialog.getByLabel('Provider',{exact:true}).selectOption(provider);
+  await dialog.getByRole('combobox',{name:'Provider',exact:true}).selectOption(provider);
   await dialog.getByLabel('API key',{exact:true}).fill('synthetic-test-key');
   await dialog.getByRole('checkbox',{name:/I authorize/}).check();
   await dialog.getByRole('button',{name:'Validate connection & load models'}).click();

@@ -28,7 +28,7 @@ export function ExportPanel({ busy }: { busy: boolean }) {
       const assets = await (await import('@/adapters/renderers/diagramDownload')).diagramAssets(checkpoint.diagram);
       let name: string;
       if (format === 'svg') name = saveFile(assets.svg, filename(title,'diagram','svg'),mime);
-      else if (format === 'png') name = saveFile(await (await fetch(assets.png)).arrayBuffer(), filename(title,'diagram','png'),mime);
+      else if (format === 'png') name = saveFile(Uint8Array.from(atob(assets.png.split(',')[1]), char => char.charCodeAt(0)), filename(title,'diagram','png'),mime);
       else {
         const data = await (await import('@/workers/exportClient')).renderFile(format, { document: checkpoint.document,
           settings: checkpoint.settings, diagram: checkpoint.diagram, diagramPng: assets.png });
@@ -42,7 +42,7 @@ export function ExportPanel({ busy }: { busy: boolean }) {
     <p className="notice small">Reports include full paragraphs; slides use concise excerpts. PDF tables are rendered as labelled rows. Math is preserved as TeX in exports. Check font substitution, Unicode and page breaks in your viewer.</p>
     {checkpoint.review && <label className="check-label"><input type="checkbox" checked={acknowledged} onChange={e => setAcknowledged(e.target.checked)} />I have read the review, including missing/unverified criteria and warnings, and will inspect the generated files.</label>}
     <div className="export-list">{formats.map(([format,label,mime]) => <div key={format}><span><strong>{label}</strong><small>.{format.toUpperCase()}</small></span>
-      <Button variant="outline" disabled={!ready || busy || Boolean(pending) || !acknowledged} onClick={() => void download(format,mime)}>{pending === format ? 'Rendering…' : <><Download size={16} /> Download</>}</Button></div>)}</div>
+      <Button variant="outline" aria-busy={pending === format} disabled={!ready || busy || Boolean(pending) || !acknowledged} onClick={() => void download(format,mime)}>{pending === format ? 'Rendering…' : <><Download size={16} /> Download</>}</Button></div>)}</div>
     {error && <p role="alert" className="notice error">{error}</p>}
     {files.length > 0 && <div role="status"><h3>Files generated this visit</h3>{files.map((file,i) => <p className="generated-file" key={i}><Check size={16} />{file}</p>)}</div>}
     {checkpoint.diagram && <details><summary>Validated diagram sources</summary><p className="small muted">Generated from the same labelled nodes and edges, not arbitrary model code.</p><pre>{mermaidSource(checkpoint.diagram)}</pre><pre>{graphvizSource(checkpoint.diagram)}</pre></details>}

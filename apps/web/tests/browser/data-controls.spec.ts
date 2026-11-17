@@ -1,0 +1,51 @@
+import { test, expect } from '@playwright/test';
+import { connectProvider, mockProvider } from './mockProvider';
+
+test('local project export, invalid import, valid import and archive restore preserve work', async ({ page }) => {
+  await page.goto('/workspace');
+  await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Your document request' }).fill('A local audit draft preserved across imports.');
+  await page.getByRole('button', { name: 'Data controls', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  const downloaded = page.waitForEvent('download');
+  await dialog.getByRole('button', { name: 'Export local project', exact: true }).click();
+  const download = await downloaded;
+  expect(await download.failure()).toBeNull();
+  const path = await download.path();
+  expect(path).toBeTruthy();
+  const input = dialog.locator('input[type=file]');
+  await input.setInputFiles({ name: 'invalid.json', mimeType: 'application/json', buffer: Buffer.from('{}') });
+  await expect(dialog.getByRole('status')).toContainText('Current work was preserved');
+  if (!path) throw new Error('Missing project export');
+  await input.setInputFiles(path);
+  await expect(dialog.getByRole('status')).toContainText('Imported locally');
+  await dialog.getByRole('button', { name: 'Show local archives' }).click();
+  await dialog.locator('.archive-item').first().click();
+  await expect(dialog.getByRole('status')).toContainText('Local archive restored');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('textbox', { name: 'Your document request' })).toHaveValue('A local audit draft preserved across imports.');
+});
+
+test('vault controls recover from wrong passphrase and revalidate unlocked connections', async ({ page }) => {
+  await mockProvider(page);
+  await page.goto('/workspace');
+  await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
+  await connectProvider(page);
+  await page.getByRole('button', { name: 'groq connected', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByText('Optional encrypted vault', { exact: true }).click();
+  await dialog.getByLabel('Vault passphrase').fill('synthetic-audit-passphrase');
+  await dialog.getByRole('button', { name: 'Encrypt & save', exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText('Keys encrypted');
+  await dialog.getByRole('button', { name: 'Lock session', exact: true }).click();
+  await dialog.getByLabel('Vault passphrase').fill('synthetic-wrong-passphrase');
+  await dialog.getByRole('button', { name: 'Unlock vault', exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText('Could not unlock');
+  await dialog.getByLabel('Vault passphrase').fill('synthetic-audit-passphrase');
+  await dialog.getByRole('button', { name: 'Unlock vault', exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText('Vault unlocked');
+  await dialog.getByRole('button', { name: 'Revalidate', exact: true }).click();
+  await expect(dialog.getByText('Model list verified', { exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Delete saved vault', exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText('Encrypted vault deleted');
+});

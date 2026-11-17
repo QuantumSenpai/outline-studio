@@ -67,8 +67,9 @@ label > input, label > select, label > textarea { margin-top: 7px; }
 .prose { max-width: 780px; padding-block: 80px 100px; overflow-wrap: anywhere; }
 .prose h1 { font-size: clamp(3rem,5vw,4.8rem); }
 .prose h2 { font-size: 1.8rem; margin-top: 48px; }
+.prose > h2:first-child { margin-top: 0; }
 .prose p, .prose li { line-height: 1.8; color: #50515c; }
-.prose a { color: var(--indigo); text-decoration: underline; text-underline-offset: 4px; }
+.prose a:not(.button) { color: var(--indigo); text-decoration: underline; text-underline-offset: 4px; }
 .prose li + li { margin-top: 10px; }
 .prose ul, .prose ol { padding-left: 24px; }
 .storage-notice { position: fixed; bottom: 12px; left: 12px; z-index: 75; background: var(--paper); border: 1px solid var(--line); padding: 12px; font-size: .85rem; }

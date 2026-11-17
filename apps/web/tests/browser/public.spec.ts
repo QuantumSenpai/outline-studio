@@ -35,10 +35,12 @@ test('responsive layouts, reduced motion and private indexing',async({page})=>{
   const sitemap=await page.request.get('/sitemap.xml'); expect(await sitemap.text()).not.toContain('/workspace');
 });
 test('feedback stays editable when persistence fails and acknowledges actual confirmation',async({page})=>{
+  await page.route('**/api/session',route=>route.fulfill({json:{connected:true}}));
+  await page.route('**/api/feedback',route=>route.fulfill({status:503,json:{code:'unavailable',message:'Synthetic feedback outage.'}}));
   await page.goto('/feedback'); await page.getByRole('button',{name:'Reject optional cookies',exact:true}).click();
   await page.getByLabel('Your message').fill('This is a synthetic feedback test message.');
   await page.getByRole('button',{name:/Send feedback/}).click();
-  await expect(page.getByRole('alert')).toBeVisible(); await expect(page.getByLabel('Your message')).toHaveValue('This is a synthetic feedback test message.');
+  await expect(page.locator('form').getByRole('alert')).toHaveText('Synthetic feedback outage.'); await expect(page.getByLabel('Your message')).toHaveValue('This is a synthetic feedback test message.');
   await page.route('**/api/session',route=>route.fulfill({json:{connected:true}}));
   await page.route('**/api/feedback',route=>route.fulfill({status:201,json:{saved:true,id:'synthetic'}}));
   await page.getByRole('button',{name:/Send feedback/}).click(); await expect(page.getByText('Message received.')).toBeVisible();

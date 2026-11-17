@@ -4,6 +4,7 @@ import { connectProvider,mockProvider } from './mockProvider';
 
 test('accepted outline, coworkers, manual revision, review, reload and real downloads',async({page})=>{
   const errors:string[]=[]; page.on('pageerror',e=>errors.push(e.message));
+  page.on('console',message=>{ if(message.type()==='error') errors.push(message.text()); });
   const stages=await mockProvider(page);
   await page.goto('/workspace'); await page.getByRole('button',{name:'Reject optional cookies',exact:true}).click();
   await page.getByRole('textbox',{name:'Your document request'}).fill('Compare TCP and UDP for a report, slides and a labelled diagram.');

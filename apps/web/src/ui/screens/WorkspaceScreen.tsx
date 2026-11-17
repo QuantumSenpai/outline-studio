@@ -40,9 +40,9 @@ export function WorkspaceScreen({ style }: { style: StyleId }) {
   }
   const stage = stageNameSchema.safeParse(activeTab);
   return <main id="main" className="workspace-shell"><header className="workspace-toolbar"><div><h1>Workspace</h1><p>{checkpoint.outline?.title || 'A fresh page, a shared direction.'}</p></div>
-    <div className="workspace-tools"><button onClick={() => setStyleOpen(true)} disabled={pipeline.busy}><Settings2 size={16} /><span>{styles.find(s => s.id === checkpoint.settings.style)?.name}</span></button>
-      <button onClick={() => setProviderOpen(true)} disabled={pipeline.busy}><KeyRound size={16} /><span>{providers.primary ? `${providers.primary} connected` : 'Connect AI'}</span></button>
-      <button onClick={() => setDataOpen(true)} disabled={pipeline.busy}><Database size={16} /><span>Data controls</span></button></div></header>
+    <div className="workspace-tools"><button aria-label={`Document style settings · ${styles.find(s => s.id === checkpoint.settings.style)?.name}`} onClick={() => setStyleOpen(true)} disabled={pipeline.busy}><Settings2 size={16} /><span>{styles.find(s => s.id === checkpoint.settings.style)?.name}</span><small className="toolbar-short-label">Style</small></button>
+      <button aria-label={providers.primary ? `${providers.primary} connected` : 'Connect AI'} onClick={() => setProviderOpen(true)} disabled={pipeline.busy}><KeyRound size={16} /><span>{providers.primary ? `${providers.primary} connected` : 'Connect AI'}</span><small className="toolbar-short-label">{providers.primary ?? 'AI'}</small></button>
+      <button aria-label="Data controls" onClick={() => setDataOpen(true)} disabled={pipeline.busy}><Database size={16} /><span>Data controls</span><small className="toolbar-short-label">Data</small></button></div></header>
     {!online && <div className="workspace-network" role="status"><WifiOff size={16} /> Offline · local review and editing remain available. Reconnect, then retry unfinished stages.</div>}
     {store.persistenceError && <p className="notice error" role="alert">{store.persistenceError}</p>}
     <div className="workspace-body"><TaskRail busy={pipeline.busy} /><Tabs.Root className="workspace-main" value={activeTab} onValueChange={setTab}>

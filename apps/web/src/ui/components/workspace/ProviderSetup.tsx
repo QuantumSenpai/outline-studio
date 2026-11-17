@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { ArrowDown, ArrowUp, ArrowUpRight, Check, Trash2 } from 'lucide-react';
 import { providers, providerVerificationDate } from '@outline-studio/config';
@@ -14,6 +14,13 @@ import { VaultControls } from './VaultControls';
 const validationSchema = z.object({ models: z.array(z.string()).max(5000), verifiedAt: z.string() });
 export function ProviderSetup({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const state = useProviders();
+  const request = useRef<AbortController | null>(null);
+  useEffect(() => () => request.current?.abort(), []);
+  function beginRequest() {
+    request.current?.abort();
+    const controller = new AbortController(); request.current = controller;
+    setPending(true); setError(''); return controller;
+  }
   const [provider, setProvider] = useState<ProviderId>('groq');
   const [key, setKey] = useState(''); const [models, setModels] = useState<string[]>([]);
   const [model, setModel] = useState(''); const [authorized, setAuthorized] = useState(false);
@@ -21,15 +28,17 @@ export function ProviderSetup({ open, onOpenChange }: { open: boolean; onOpenCha
   const current = providers.find(p => p.id === provider) ?? providers[0];
   async function validate() {
     if (!authorized) { setError('Authorize model-list access and potential generation costs before connecting.'); return; }
-    setPending(true); setError(''); setModels([]);
+    const controller = beginRequest(); setModels([]);
     try {
-      await connectSession(AbortSignal.timeout(15000));
-      const response = await api('/providers/validate', { provider, key, model: current.model, authorized: true }, AbortSignal.timeout(20000));
+      await connectSession(AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]));
+      const response = await api('/providers/validate', { provider, key, model: current.model, authorized: true }, AbortSignal.any([controller.signal, AbortSignal.timeout(20000)]));
       const result = validationSchema.parse(await response.json());
+      if (controller.signal.aborted) return;
       const textModels = result.models.filter(id => !/embed|whisper|tts|audio|imagen|vision-only|dall-e|rerank/i.test(id));
       if (!textModels.length) throw new Error('No candidate text models were returned for this account. Check permissions.');
       setModels(textModels); setModel(textModels.includes(current.model) ? current.model : textModels[0]); setVerifiedAt(result.verifiedAt);
-    } catch (error) { setError(messageFrom(error)); } finally { setPending(false); }
+    } catch (error) { if (!controller.signal.aborted) setError(messageFrom(error)); }
+    finally { if (!controller.signal.aborted) setPending(false); }
   }
   function save() {
     if (!models.includes(model) || !authorized) return;
@@ -37,25 +46,27 @@ export function ProviderSetup({ open, onOpenChange }: { open: boolean; onOpenCha
     setKey(''); setModels([]); setAuthorized(false); setError('');
   }
   async function revalidate(connection: Connection) {
-    setPending(true); setError('');
+    const controller = beginRequest();
     try {
-      await connectSession(AbortSignal.timeout(15000));
-      const response = await api('/providers/validate', connection, AbortSignal.timeout(20000));
+      await connectSession(AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]));
+      const response = await api('/providers/validate', connection, AbortSignal.any([controller.signal, AbortSignal.timeout(20000)]));
       const result = validationSchema.parse(await response.json());
+      if (controller.signal.aborted) return;
       if (!result.models.includes(connection.model)) throw new Error('Saved model is no longer listed. Configure a new model above.');
       state.put({ ...connection, validated: true, verifiedAt: result.verifiedAt });
-    } catch (error) { setError(messageFrom(error)); } finally { setPending(false); }
+    } catch (error) { if (!controller.signal.aborted) setError(messageFrom(error)); }
+    finally { if (!controller.signal.aborted) setPending(false); }
   }
-  return <Modal open={open} onOpenChange={value => { if (!value) { setKey(''); setModels([]); setAuthorized(false); } onOpenChange(value); }}
+  return <Modal open={open} onOpenChange={value => { if (!value) { request.current?.abort(); setPending(false); setKey(''); setModels([]); setAuthorized(false); setError(''); } onOpenChange(value); }}
     title="Connect your AI" description="Start with one provider. Keys stay in memory for this visit unless you choose the encrypted vault.">
-    <div className="form-stack"><label>Provider<select value={provider} onChange={e => { setProvider(providerIdSchema.parse(e.target.value)); setModels([]); setKey(''); setAuthorized(false); }}>
+    <div className="form-stack"><label>Provider<select disabled={pending} value={provider} onChange={e => { setProvider(providerIdSchema.parse(e.target.value)); setModels([]); setKey(''); setAuthorized(false); }}>
       {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
       <ol className="provider-steps">{current.steps.map(step => <li key={step}>{step}</li>)}</ol>
       <a className="text-link small" href={current.keyUrl} target="_blank" rel="noopener noreferrer">Create a {current.name} key <ArrowUpRight size={14} style={{ display: 'inline' }} /></a>
-      <label>API key<input type="password" value={key} onChange={e => { setKey(e.target.value); setModels([]); }} autoComplete="off" spellCheck={false} maxLength={512} placeholder="Paste your provider key" /></label>
-      <label className="check-label"><input type="checkbox" checked={authorized} onChange={e => setAuthorized(e.target.checked)} />
+      <label>API key<input type="password" disabled={pending} value={key} onChange={e => { setKey(e.target.value); setModels([]); }} autoComplete="off" spellCheck={false} maxLength={512} placeholder="Paste your provider key" /></label>
+      <label className="check-label"><input type="checkbox" disabled={pending} checked={authorized} onChange={e => setAuthorized(e.target.checked)} />
         <span>I authorize connection checks and generation with my selected model, including potential provider charges. I have checked its pricing and account permissions.</span></label>
-      <Button variant="outline" onClick={() => void validate()} disabled={pending || key.trim().length < 8}>{pending ? 'Validating connection…' : 'Validate connection & load models'}</Button>
+      <Button variant="outline" aria-busy={pending} onClick={() => void validate()} disabled={pending || key.trim().length < 8}>{pending ? 'Validating connection…' : 'Validate connection & load models'}</Button>
       {models.length > 0 && <><label>Available model<select value={model} onChange={e => setModel(e.target.value)}>{models.map(id => <option key={id}>{id}</option>)}</select></label>
         <p className="small muted">Model-list access verified. Choose a text/chat model. Actual stage compatibility and usage limits are checked when generating.</p><Button onClick={save}>Use this connection <Check size={16} /></Button></>}
       {error && <p className="notice error" role="alert">{error}</p>}
