@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { ArrowDown, ArrowUp, ArrowUpRight, Check, Trash2 } from 'lucide-react';
-import { providers, providerVerificationDate } from '@outline-studio/config';
+import { providers, providerVerificationDate, isCandidateTextModel } from '@outline-studio/config';
 import { providerIdSchema, type ProviderId, type Connection } from '@outline-studio/schemas';
 import { api, connectSession, messageFrom } from '@/lib/api';
 import { useProviders } from '../../stores/providerStore';
@@ -34,7 +34,7 @@ export function ProviderSetup({ open, onOpenChange }: { open: boolean; onOpenCha
       const response = await api('/providers/validate', { provider, key, model: current.model, authorized: true }, AbortSignal.any([controller.signal, AbortSignal.timeout(20000)]));
       const result = validationSchema.parse(await response.json());
       if (controller.signal.aborted) return;
-      const textModels = result.models.filter(id => !/embed|whisper|tts|audio|imagen|vision-only|dall-e|rerank/i.test(id));
+      const textModels = result.models.filter(isCandidateTextModel);
       if (!textModels.length) throw new Error('No candidate text models were returned for this account. Check permissions.');
       setModels(textModels); setModel(textModels.includes(current.model) ? current.model : textModels[0]); setVerifiedAt(result.verifiedAt);
     } catch (error) { if (!controller.signal.aborted) setError(messageFrom(error)); }

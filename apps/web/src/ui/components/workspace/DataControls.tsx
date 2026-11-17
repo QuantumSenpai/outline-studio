@@ -6,6 +6,7 @@ import { localDatabase } from '@/adapters/storage/database';
 import { useProviders } from '../../stores/providerStore';
 import { useWorkspace } from '../../stores/workspaceStore';
 import { saveFile } from '@/lib/download';
+import { exportServerFeedback } from '@/lib/exportServerFeedback';
 import { api, messageFrom } from '@/lib/api';
 import { Modal } from '../ui/dialog';
 import { Button } from '../ui/button';
@@ -17,8 +18,8 @@ export function DataControls({ open, onOpenChange }: { open: boolean; onOpenChan
   async function serverData(remove: boolean) {
     setPending(true);
     try {
-      const response = await api('/data', undefined, AbortSignal.timeout(15000), remove ? 'DELETE' : 'GET');
-      if (!remove) saveFile(JSON.stringify(await response.json(), null, 2), 'outline-server-data.json', 'application/json');
+      const data = remove ? await api('/data', undefined, AbortSignal.timeout(15000), 'DELETE') : await exportServerFeedback();
+      if (!remove) saveFile(JSON.stringify(data, null, 2), 'outline-server-data.json', 'application/json');
       setStatus(remove ? 'Server data for this guest session was deleted. Existing local drafts are unchanged.' : 'Server feedback records exported. Run metadata is paginated through /api/runs.');
     } catch (error) { setStatus(messageFrom(error)); } finally { setPending(false); }
   }

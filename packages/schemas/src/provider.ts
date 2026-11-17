@@ -12,7 +12,7 @@ export type Connection = z.infer<typeof connectionSchema>;
 export const errorSchema = z.object({
   code: z.enum(['invalid_input', 'unauthorized', 'forbidden', 'rate_limit', 'credit', 'credentials',
     'unavailable', 'timeout', 'cancelled', 'conflict', 'uncertain', 'model', 'invalid_output', 'offline']),
-  message: z.string(), retryAfter: z.number().nonnegative().optional(),
+  message: z.string(), requestId: z.uuid().optional(), retryAfter: z.number().nonnegative().optional(),
 });
 export type ErrorData = z.infer<typeof errorSchema>;
 export const modelListSchema = z.object({ data: z.array(z.object({ id: z.string().max(160) })).max(5000) });

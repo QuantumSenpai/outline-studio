@@ -12,10 +12,12 @@ export async function readBody<T>(request: Request, schema: z.ZodType<T>, maximu
     throw new ApiError('invalid_input', 'Use a JSON request.', 415);
   const reader = request.body?.getReader();
   if (!reader) throw new ApiError('invalid_input', 'A request body is required.');
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new ApiError('timeout', 'Request body timed out. Retry with a complete JSON request.', 504)), 5000); });
   const chunks: Uint8Array[] = []; let total = 0;
   try {
     while (true) {
-      const { done, value } = await reader.read(); if (done) break;
+      const { done, value } = await Promise.race([reader.read(), deadline]); if (done) break;
       total += value.byteLength;
       if (total > maximum) { await reader.cancel(); throw new ApiError('invalid_input', 'Request is too large.', 413); }
       chunks.push(value);
@@ -27,7 +29,7 @@ export async function readBody<T>(request: Request, schema: z.ZodType<T>, maximu
   } catch (error) {
     if (error instanceof ApiError) throw error;
     throw new ApiError('invalid_input', 'Request could not be read as valid JSON.');
-  } finally { reader.releaseLock(); }
+  } finally { clearTimeout(timer); await reader.cancel().catch(() => undefined); reader.releaseLock(); }
 }
 export async function owner(context: Context) {
   const id = verifySession(getCookie(context, cookieName));

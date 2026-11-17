@@ -9,7 +9,7 @@ export const runs = pgTable('runs', {
   id: uuid().primaryKey(), owner: uuid().notNull().references(() => sessions.id, { onDelete: 'cascade' }),
   revision: integer().notNull(), createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
-}, t => [index('runs_owner_updated_idx').on(t.owner, t.updatedAt), check('positive_revision', sql`${t.revision} > 0`)]);
+}, t => [index('runs_owner_updated_idx').on(t.owner, t.updatedAt, t.id), check('positive_revision', sql`${t.revision} > 0`)]);
 export const stages = pgTable('stages', {
   requestId: uuid().primaryKey(), runId: uuid().notNull().references(() => runs.id, { onDelete: 'cascade' }),
   revision: integer().notNull(), stage: text().notNull(), attempt: integer().notNull(),
@@ -24,7 +24,7 @@ export const feedback = pgTable('feedback', {
   id: uuid().primaryKey(), owner: uuid().notNull().references(() => sessions.id, { onDelete: 'cascade' }),
   category: text().notNull(), rating: integer(), message: text().notNull(), contact: text(),
   createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
-}, t => [index('feedback_owner_date_idx').on(t.owner, t.createdAt), index('feedback_date_idx').on(t.createdAt),
+}, t => [index('feedback_owner_date_idx').on(t.owner, t.createdAt, t.id), index('feedback_date_idx').on(t.createdAt),
   check('feedback_category', sql`${t.category} IN ('idea','problem','experience')`),
   check('feedback_rating', sql`${t.rating} BETWEEN 1 AND 5`),
   check('feedback_message_length', sql`length(${t.message}) BETWEEN 10 AND 4000`)]);

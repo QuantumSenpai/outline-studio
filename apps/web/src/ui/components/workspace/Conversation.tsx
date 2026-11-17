@@ -24,9 +24,10 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
   }}><div className="conversation-intro"><span className="workspace-symbol"><FilePlus2 size={23} /></span>
     <h2>{checkpoint.brief ? 'Your document, in motion.' : 'What are we making?'}</h2>
     <p>One brief is enough to begin. Shape the outline, follow your coworkers and review the files before they leave your desk.</p>
-    {!checkpoint.brief && <div className="suggestions">{['Compare TCP and UDP for a networking assignment.', 'Draft a professional report on a campus recycling initiative.', 'Explain these questions with worked solutions.'].map(text =>
+    {!checkpoint.brief && <div className="suggestions">{['Compare renewable energy policies for an academic assignment.', 'Draft a professional report on a campus recycling initiative.', 'Explain these questions with worked solutions.'].map(text =>
       <button key={text} onClick={() => patch({ composer: text })}>{text}<ArrowUp size={14} /></button>)}</div>}
     {!checkpoint.brief && <button className="text-link small" onClick={openProvider}>Connect a provider to generate</button>}</div>
+    {checkpoint.messages.length >= 200 && <p role="status" className="notice">This conversation has reached its 200-message limit. Earlier messages are preserved. Export a backup or start a new request, which snapshots this draft first.</p>}
     <div className="messages" role="log" aria-label="Main conversation" aria-live="polite">{checkpoint.messages.map(message =>
       <article key={message.id} className={`message ${message.role}`}><strong>{message.role === 'user' ? 'You' : 'Outline Studio'}</strong><p>{message.text}</p></article>)}</div>
     {checkpoint.outline && <OutlineReview busy={busy} onAccept={onAccept} />}

@@ -1,10 +1,11 @@
 import { Hono } from 'hono';
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
-import { eq, and, desc, lt } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { database } from '../db/client';
 import { sessions, runs, feedback } from '../db/schema';
 import { anonymousBucket, cookieName, makeSession, verifySession } from '../security';
 import { owner } from '../http';
+import { decodeCursor, encodeCursor } from '../cursor';
 import { limit } from '../db/limits';
 
 export const sessionRoutes = new Hono();
@@ -25,17 +26,18 @@ sessionRoutes.post('/session', async c => {
 sessionRoutes.get('/session', async c => { await owner(c); return c.json({ connected: true }); });
 sessionRoutes.get('/runs', async c => {
   const id = await owner(c);
-  const cursor = c.req.query('before');
-  const before = cursor ? new Date(cursor) : new Date();
-  if (Number.isNaN(before.getTime())) return c.json({ code: 'invalid_input', message: 'Invalid page cursor.' }, 400);
+  const cursor = decodeCursor(c.req.query('before'));
   const items = await database().select({ id: runs.id, revision: runs.revision, updatedAt: runs.updatedAt }).from(runs)
-    .where(and(eq(runs.owner, id), lt(runs.updatedAt, before))).orderBy(desc(runs.updatedAt), desc(runs.id)).limit(20);
-  return c.json({ items, next: items.length === 20 ? items.at(-1)?.updatedAt.toISOString() : null });
+    .where(and(eq(runs.owner, id), cursor.id ? sql`(${runs.updatedAt},${runs.id}) < (${cursor.at}::timestamptz,${cursor.id}::uuid)` : sql`${runs.updatedAt} < ${cursor.at}::timestamptz`)).orderBy(desc(runs.updatedAt), desc(runs.id)).limit(20);
+  return c.json({ items, next: items.length === 20 ? encodeCursor(items[items.length - 1].updatedAt, items[items.length - 1].id) : null });
 });
 sessionRoutes.get('/data', async c => {
   const id = await owner(c);
-  const records = await database().select().from(feedback).where(eq(feedback.owner, id)).limit(500);
-  return c.json({ feedback: records.map(({ owner: ignored, ...record }) => ({ ...record, owner: ignored ? 'this session' : '' })), note: 'Full drafts and transcripts are local. Run metadata is available in /api/runs with pagination.' });
+  const cursor = decodeCursor(c.req.query('before'));
+  const records = await database().select().from(feedback).where(and(eq(feedback.owner, id),
+    cursor.id ? sql`(${feedback.createdAt},${feedback.id}) < (${cursor.at}::timestamptz,${cursor.id}::uuid)` : sql`${feedback.createdAt} < ${cursor.at}::timestamptz`))
+    .orderBy(desc(feedback.createdAt), desc(feedback.id)).limit(500);
+  return c.json({ next: records.length === 500 ? encodeCursor(records[records.length - 1].createdAt, records[records.length - 1].id) : null, feedback: records.map(({ owner: ignored, ...record }) => ({ ...record, owner: ignored ? 'this session' : '' })), note: 'Full drafts and transcripts are local. Run metadata is available in /api/runs with pagination.' });
 });
 sessionRoutes.delete('/data', async c => {
   const id = await owner(c);

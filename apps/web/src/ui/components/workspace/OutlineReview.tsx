@@ -6,14 +6,15 @@ import { useWorkspace } from '../../stores/workspaceStore';
 import { Button } from '../ui/button';
 
 export function OutlineReview({ busy, onAccept }: { busy: boolean; onAccept: () => void }) {
-  const { checkpoint, patch } = useWorkspace();
+  const { checkpoint, revise } = useWorkspace();
   const [editing, setEditing] = useState(false); const [error, setError] = useState('');
   const outline = checkpoint?.outline;
   if (!outline || !checkpoint) return null;
   function save(form: FormData) {
+    if (checkpoint && checkpoint.revision >= 1000) { setError('Revision limit reached. Duplicate this project before editing.'); return; }
     const result = outlineSchema.safeParse({ ...outline, title: form.get('title'), sections: String(form.get('sections')).split('\n').map(s => s.trim()).filter(Boolean) });
     if (!result.success) { setError(result.error.issues[0]?.message ?? 'Check outline fields.'); return; }
-    patch({ outline: result.data }); setEditing(false); setError('');
+    revise({ outline: result.data }); setEditing(false); setError('');
   }
   return <section className="outline-review"><div className="panel-title"><h3>{checkpoint.outlineAccepted ? 'Accepted outline' : 'Your outline, for approval'}</h3>
     {!checkpoint.outlineAccepted && <button className="text-button small" disabled={busy} onClick={() => setEditing(!editing)}>{editing ? 'Keep original' : 'Edit outline'}</button>}</div>

@@ -9,3 +9,11 @@ export const styles = [
   { id: 'solutions', name: 'Question-paper solutions', description: 'Original numbering, worked explanations and ambiguity flags.',
     instructions: 'Preserve original question numbers. Show useful working and explanations. Flag ambiguous questions and uncertain answers. Never claim automatic correctness.' },
 ] as const;
+
+export function templateDefaults(style: typeof styles[number]['id']) {
+  return { style, cover: style === 'academic' || style === 'professional', contents: false, lineSpacing: style === 'professional' ? 1.15 : 1.5 };
+}
+export function abstractLabel(style: typeof styles[number]['id']) { return style === 'professional' ? 'Executive summary' : style === 'solutions' ? 'Opening notes' : 'Abstract'; }
+export function sectionLabel(heading: string, index: number, style: typeof styles[number]['id']) {
+  return style === 'academic' && !/^\d+[.)\s]/.test(heading) ? `${index + 1}. ${heading}` : heading;
+}

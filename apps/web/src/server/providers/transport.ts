@@ -1,6 +1,7 @@
 import 'server-only';
-import { providers } from '@outline-studio/config';
+import { providers, isCandidateTextModel } from '@outline-studio/config';
 import { modelListSchema, type Connection } from '@outline-studio/schemas';
+import { responseText, responseJson } from '../response';
 import { ApiError } from '../errors';
 
 export function endpoint(connection: Connection, path: '/models' | '/chat/completions') {
@@ -13,7 +14,7 @@ export function headers(connection: Connection) {
 }
 export async function upstreamError(response: Response) {
   let details = '';
-  try { details = (await response.text()).slice(0, 6000).toLowerCase(); } catch { details = ''; }
+  try { details = (await responseText(response, 6000, true)).toLowerCase(); } catch { details = ''; }
   const retry = response.headers.get('retry-after');
   const seconds = retry && /^\d+$/.test(retry) ? Number(retry) : retry ? Math.ceil((Date.parse(retry) - Date.now()) / 1000) : 10;
   const delay = Math.min(300, Math.max(1, Number.isFinite(seconds) ? seconds : 10));
@@ -27,8 +28,8 @@ export async function upstreamError(response: Response) {
 export async function listModels(connection: Connection, signal: AbortSignal) {
   const response = await fetch(endpoint(connection, '/models'), { headers: headers(connection), signal, redirect: 'error', cache: 'no-store' });
   if (!response.ok) throw await upstreamError(response);
-  const body: unknown = await response.json();
+  const body: unknown = await responseJson(response);
   const result = modelListSchema.safeParse(body);
   if (!result.success) throw new ApiError('invalid_output', 'Provider returned an unreadable model list.', 502);
-  return result.data.data.map(m => m.id).filter(id => /^[\w./:@-]+$/.test(id)).sort();
+  return result.data.data.map(m => m.id).filter(id => /^[\w./:@-]+$/.test(id) && isCandidateTextModel(id)).sort();
 }

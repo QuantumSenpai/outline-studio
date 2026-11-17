@@ -15,11 +15,14 @@ export async function api(path: string, data?: unknown, signal?: AbortSignal, me
   try { response = await fetch(`/api${path}`, { method, signal, credentials: 'same-origin',
     headers: data === undefined ? {} : { 'Content-Type': 'application/json' }, body: data === undefined ? undefined : JSON.stringify(data) }); }
   catch (error) {
-    if (signal?.aborted) throw new ClientError({ code: 'cancelled', message: 'Request cancelled. Provider usage may still apply.' });
+    if (signal?.aborted) {
+      const timeout = signal.reason?.name === 'TimeoutError';
+      throw new ClientError({ code: timeout ? 'timeout' : 'cancelled', message: timeout ? 'Connection timed out. Accepted work is preserved; retry the unfinished stage.' : 'Request cancelled. Provider usage may still apply.' });
+    }
     throw new ClientError({ code: 'offline', message: error instanceof Error && error.name === 'TimeoutError' ? 'Connection timed out. Reconnect and retry.' : 'Connection lost. Your local work is preserved; reconnect and retry.' });
   }
   if (!response.ok) throw await responseError(response);
   return response;
 }
 export async function connectSession(signal?: AbortSignal) { await api('/session', undefined, signal); }
-export function messageFrom(error: unknown) { return error instanceof Error ? error.message : 'This action could not be completed. Try again.'; }
+export function messageFrom(error: unknown) { return error instanceof ClientError && error.details.requestId ? `${error.message} (Reference: ${error.details.requestId})` : error instanceof Error ? error.message : 'This action could not be completed. Try again.'; }

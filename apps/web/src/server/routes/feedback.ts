@@ -20,6 +20,10 @@ feedbackRoutes.post('/feedback', async c => {
   const saved = await database().insert(feedback).values({ id: data.submissionId, owner: id,
     category: data.category, rating: data.rating, message: data.message, contact: data.contact || null })
     .onConflictDoNothing().returning({ id: feedback.id });
-  if (!saved.length) throw new ApiError('conflict', 'Submission identifier already exists. Reload the form to create a new submission.', 409);
+  if (!saved.length) {
+    const [replayed] = await database().select({ id: feedback.id }).from(feedback).where(and(eq(feedback.id, data.submissionId), eq(feedback.owner, id))).limit(1);
+    if (replayed) return c.json({ saved: true, id: replayed.id });
+    throw new ApiError('conflict', 'Submission identifier already exists. Reload the form to create a new submission.', 409);
+  }
   return c.json({ saved: true, id: saved[0].id }, 201);
 });

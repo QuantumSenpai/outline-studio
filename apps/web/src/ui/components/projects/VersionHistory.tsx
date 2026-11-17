@@ -10,6 +10,8 @@ import { projectMarkdown } from '@/domain/projects/markdown';
 import type { ProjectVersion } from '@/domain/projects/schema';
 import { saveFile, filename } from '@/lib/download';
 import { messageFrom } from '@/lib/api';
+import { ProjectBackup } from './ArchiveActions';
+import { RevisionDownloads } from './RevisionDownloads';
 import { Button } from '../ui/button';
 import { Modal } from '../ui/dialog';
 import '@/ui/styles/projects.css';
@@ -34,6 +36,7 @@ export function VersionHistory() {
   return <section className="history-panel" aria-label="Local version history"><div><h2>Version history</h2><p className="muted">Named snapshots preserve your brief, conversation, accepted content, diagram, sources and settings. Restoring creates a new revision and keeps the current draft in history.</p></div>
     <div className="project-create"><label>Snapshot name<input value={name} onChange={event => setName(event.target.value)} maxLength={160} placeholder="Before final review" /></label>
       <Button disabled={pending || !name.trim()} onClick={() => void perform(async () => { await saveProject(checkpoint); const version = await snapshotProject(checkpoint, name); setSelected(version); setName(''); setStatus('Snapshot saved locally.'); })}>Save named snapshot</Button></div>
+    <ProjectBackup id={projectId} name={checkpoint.document?.title ?? 'outline-studio'} checkpoint={checkpoint} />
     {status && <p role="status" className="notice">{status}</p>}
     <div className="history-layout"><div><ul className="version-list">{versions.map(version => <li key={version.id}><button aria-pressed={selected?.id === version.id} onClick={() => setSelected(version)}>
       <strong>{version.name}</strong><small>Snapshot {version.number} · Revision {version.checkpoint.revision} · {new Date(version.createdAt).toLocaleString()}</small></button></li>)}</ul>
@@ -43,6 +46,7 @@ export function VersionHistory() {
         <div className="button-row"><Button variant="outline" onClick={() => saveFile(JSON.stringify(selected.checkpoint, null, 2), filename(selected.name, 'snapshot', 'json'), 'application/json')}>Download snapshot JSON</Button>
           <Button variant="outline" onClick={() => saveFile(projectMarkdown(selected.checkpoint), filename(selected.name, 'snapshot', 'md'), 'text/markdown')}>Download snapshot Markdown</Button>
           <Button disabled={pending} onClick={() => setConfirm(true)}>Restore as new revision</Button></div>
+        <RevisionDownloads checkpoint={selected.checkpoint} />
         <pre aria-label="Snapshot content preview">{projectMarkdown(selected.checkpoint)}</pre>
         <h3>Compared with current draft · {changes.length} changes</h3>{!changes.length && <p>Content, settings, sources and review match the current draft.</p>}
         <ul className="version-diff">{changes.map(change => <li key={change.field}><details><summary>{change.field}</summary><strong>Snapshot</strong><pre>{change.before}</pre><strong>Current draft</strong><pre>{change.after}</pre></details></li>)}</ul>

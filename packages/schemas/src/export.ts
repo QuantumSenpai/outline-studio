@@ -1,3 +1,4 @@
+import { rasterDimensions } from './assets';
 import { z } from 'zod';
 
 export const styleIdSchema = z.enum(['academic', 'professional', 'research', 'solutions']);
@@ -10,7 +11,9 @@ export const settingsSchema = z.object({
   pageSize: z.enum(['A4', 'LETTER']).default('A4'), margin: z.number().min(12).max(40).default(25),
   lineSpacing: z.number().min(1).max(2).default(1.5), numbering: z.boolean().default(true),
   numberStart: z.number().int().min(1).max(100).default(1), numberCover: z.boolean().default(false),
-  watermark: z.boolean().default(false), logo: z.string().max(500000).regex(/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/).optional(),
+  watermark: z.boolean().default(false), logo: z.string().max(410000).superRefine((value, context) => {
+    try { rasterDimensions(value); } catch (error) { context.addIssue({ code: 'custom', message: error instanceof Error ? error.message : 'Invalid logo.' }); }
+  }).optional(),
 }).strict();
 export type StyleId = z.infer<typeof styleIdSchema>;
 export type DocumentSettings = z.infer<typeof settingsSchema>;

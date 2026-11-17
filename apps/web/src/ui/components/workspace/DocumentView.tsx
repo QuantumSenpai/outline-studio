@@ -1,5 +1,6 @@
 'use client';
 
+import { abstractLabel, sectionLabel } from '@outline-studio/config';
 import { useState } from 'react';
 import Image from 'next/image';
 import { useWorkspace } from '../../stores/workspaceStore';
@@ -22,8 +23,8 @@ export function DocumentView({ busy }: { busy: boolean }) {
         <div>{[settings.student, settings.roll && `Roll: ${settings.roll}`, settings.section && `Section: ${settings.section}`, settings.supervisor && `Faculty: ${settings.supervisor}`, settings.date].filter(Boolean).map(text => <p key={text}>{text}</p>)}</div></header>}
       <h3 className="document-title">{document.title}</h3>
       {settings.contents && <section><h4>Contents</h4><ol>{document.sections.map((s, i) => <li key={i}>{s.heading}</li>)}</ol></section>}
-      {document.abstract && <section><h4>Abstract</h4><p>{document.abstract}</p></section>}{document.keywords.length > 0 && <p><strong>Keywords:</strong> {document.keywords.join(', ')}</p>}
-      {document.sections.map((section, index) => <section key={index}><h4>{section.heading}</h4>{section.paragraphs.map((p, i) => <p key={i}>{p}</p>)}
+      {document.abstract && <section><h4>{abstractLabel(settings.style)}</h4><p>{document.abstract}</p></section>}{document.keywords.length > 0 && <p><strong>Keywords:</strong> {document.keywords.join(', ')}</p>}
+      {document.sections.map((section, index) => <section key={index}><h4>{sectionLabel(section.heading, index, settings.style)}</h4>{section.paragraphs.map((p, i) => <p key={i}>{p}</p>)}
         {section.bullets.length > 0 && <ul>{section.bullets.map((b, i) => <li key={i}>{b}</li>)}</ul>}
         {section.table && <div className="table-scroll"><table><thead><tr>{section.table.headers.map((header, i) => <th key={i}>{header}</th>)}</tr></thead>
           <tbody>{section.table.rows.map((row, i) => <tr key={i}>{row.map((cell, j) => <td key={j}>{cell}</td>)}</tr>)}</tbody></table></div>}

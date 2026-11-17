@@ -2,10 +2,11 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { owner } from '../http';
 import { limit } from '../db/limits';
+import { responseJson } from '../response';
 import { ApiError } from '../errors';
 
 const crossref = z.object({ message: z.object({ items: z.array(z.object({
-  DOI: z.string(), title: z.array(z.string()).optional(), URL: z.url(),
+  DOI: z.string().max(200).regex(/^10\.\d{4,9}\/\S+$/), title: z.array(z.string()).optional(), URL: z.url().max(2000),
 })).max(5) }) });
 export const sourceRoutes = new Hono();
 sourceRoutes.get('/sources', async c => {
@@ -19,10 +20,10 @@ sourceRoutes.get('/sources', async c => {
   const response = await fetch(url, { signal: AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(10000)]),
     headers: { 'User-Agent': 'OutlineStudio/0.1 (read-only bibliographic metadata lookup)' }, next: { revalidate: 3600 } });
   if (!response.ok) throw new ApiError('unavailable', 'Scholarly metadata lookup is unavailable. Add checked sources later; no verification is implied.', 503);
-  const result = crossref.safeParse(await response.json());
+  const result = crossref.safeParse(await responseJson(response, 600000));
   if (!result.success) throw new ApiError('invalid_output', 'Source metadata could not be validated.', 502);
   const retrievedAt = new Date().toISOString();
   return c.json({ sources: result.data.message.items.map(item => ({ title: (item.title?.[0] ?? item.DOI).slice(0, 500),
-    doi: item.DOI, url: `https://doi.org/${encodeURI(item.DOI)}`, retrievedAt, verifiedMetadata: true })),
+    doi: item.DOI, url: `https://doi.org/${item.DOI.split('/').map(encodeURIComponent).join('/')}`, retrievedAt, verifiedMetadata: true })),
     limitation: 'Crossref metadata lookup only. A matching DOI does not prove that a source supports a claim. Read the original work.' });
 });

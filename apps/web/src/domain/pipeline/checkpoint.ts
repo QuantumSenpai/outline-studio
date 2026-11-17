@@ -1,3 +1,4 @@
+import { templateDefaults } from '@outline-studio/config';
 import { z } from 'zod';
 import { settingsSchema, outlineSchema, documentSchema, diagramSchema, reviewSchema, sourceSchema, providerIdSchema, stageNameSchema } from '@outline-studio/schemas';
 
@@ -17,7 +18,7 @@ export const checkpointSchema = z.object({
 export type Checkpoint = z.infer<typeof checkpointSchema>;
 export type Task = z.infer<typeof taskSchema>;
 export function newCheckpoint(style: 'academic' | 'professional' | 'research' | 'solutions' = 'academic'): Checkpoint {
-  return { version: 1, projectId: crypto.randomUUID(), runId: crypto.randomUUID(), revision: 1, brief: '', settings: settingsSchema.parse({ style }),
+  return { version: 1, projectId: crypto.randomUUID(), runId: crypto.randomUUID(), revision: 1, brief: '', settings: settingsSchema.parse(templateDefaults(style)),
     composer: '', outlineAccepted: false, sources: [], tasks: ['planner', 'writer', 'diagram', 'reviewer'].map(stage =>
       taskSchema.parse({ stage, status: 'queued', attempt: 0, summary: 'Waiting for the main request.' })),
     messages: [], updatedAt: new Date().toISOString() };

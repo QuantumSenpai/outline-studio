@@ -42,3 +42,19 @@ test('create, autosave, snapshots, compare, restore and reopen a local project',
   await page.goto(url);
   await expect(composer).toHaveValue('A research draft about urban heat islands.');
 });
+
+test('corrupt and oversized ZIP imports preserve existing projects', async ({ page }) => {
+  await page.goto('/projects');
+  await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
+  await page.getByRole('button', { name: 'Create local project' }).click();
+  await page.getByRole('textbox', { name: 'Your document request' }).fill('Preserve this local project during failed imports.');
+  await expect(page.getByText('Saved on this device', { exact: true })).toBeVisible();
+  await page.goto('/projects');
+  const input = page.getByLabel('Import complete project ZIP', { exact: true });
+  await input.setInputFiles({ name: 'corrupt.zip', mimeType: 'application/zip', buffer: Buffer.from('not-a-project') });
+  await expect(page.getByRole('region', { name: 'Import project backup' }).getByRole('alert')).toContainText('Existing projects were preserved');
+  await expect(page.locator('.project-list > li')).toHaveCount(1);
+  await input.setInputFiles({ name: 'oversized.zip', mimeType: 'application/zip', buffer: Buffer.alloc(25 * 1024 * 1024 + 1) });
+  await expect(page.getByRole('region', { name: 'Import project backup' }).getByRole('alert')).toContainText('under 25 MB');
+  await expect(page.locator('.project-list > li')).toHaveCount(1);
+});

@@ -32,5 +32,12 @@ export function parseModelOutput(text: string, request: StageRequest) {
     if (request.outline && request.outline.sections.some(heading => !output.sections.some(s => s.heading.toLowerCase() === heading.toLowerCase())))
       output.warnings.push('Some headings differ from the accepted outline. Review the section structure.');
   }
+  if (result.data.stage === 'reviewer' && request.outline) {
+    const review = result.data.output; const assessed = review.criteria;
+    review.criteria = request.outline.requirements.map(requirement => {
+      const criterion = assessed.find(item => item.requirement.trim().toLowerCase() === requirement.trim().toLowerCase());
+      return criterion ? { ...criterion, requirement } : { requirement, status: 'unverified' as const, detail: 'This accepted requirement was not assessed by the reviewer. Check it manually.' };
+    });
+  }
   return result.data;
 }

@@ -1,3 +1,4 @@
+import { abstractLabel, sectionLabel } from '@outline-studio/config';
 import { PDFDocument, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { exportInputSchema, type ExportInput } from '../types';
@@ -26,10 +27,10 @@ export async function exportPdf(value: ExportInput, fonts: { regular: Uint8Array
     layout.write('Contents', 20, true); doc.sections.forEach(s => layout.write(s.heading)); layout.nextPage();
   }
   layout.write(doc.title, 22, true);
-  if (doc.abstract) { layout.write('Abstract',16,true); layout.write(doc.abstract); }
+  if (doc.abstract) { layout.write(abstractLabel(settings.style),16,true); layout.write(doc.abstract); }
   if (doc.keywords.length) layout.write(`Keywords: ${doc.keywords.join(', ')}`);
-  for (const section of doc.sections) {
-    layout.write(section.heading, 17, true); section.paragraphs.forEach(p => layout.write(p));
+  for (const [index, section] of doc.sections.entries()) {
+    layout.write(sectionLabel(section.heading, index, settings.style), 17, true); section.paragraphs.forEach(p => layout.write(p));
     section.bullets.forEach(p => layout.write(`• ${p}`, 12, false, 10));
     if (section.table) {
       layout.write(section.table.headers.join(' | '), 11, true);
@@ -43,6 +44,7 @@ export async function exportPdf(value: ExportInput, fonts: { regular: Uint8Array
     layout.move(fit.height+12); layout.write(`Figure 1. ${input.diagram.caption}`, 11);
   }
   if (doc.references.length) { layout.write('References', 17, true); doc.references.forEach((source,i) => layout.write(`${i+1}. ${source.title}. ${source.url}`, 11)); }
+  if (doc.warnings.length) { layout.write('Review notes', 17, true); doc.warnings.forEach(warning => layout.write(warning, 11)); }
   const pages = pdf.getPages();
   pages.forEach((page,index) => {
     const excluded = settings.cover && !settings.numberCover ? 1 : 0;

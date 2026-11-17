@@ -1,3 +1,4 @@
+import { abstractLabel, sectionLabel } from '@outline-studio/config';
 import type { Checkpoint } from '../pipeline/checkpoint';
 
 export function projectMarkdown(checkpoint: Checkpoint) {
@@ -6,11 +7,11 @@ export function projectMarkdown(checkpoint: Checkpoint) {
     checkpoint.review ? 'User-reviewed structured revision. Verify factual accuracy and citations.' : 'Draft snapshot. Review is incomplete.', '',
     ...[checkpoint.settings.student, checkpoint.settings.roll, checkpoint.settings.course, checkpoint.settings.department, checkpoint.settings.university, checkpoint.settings.supervisor, checkpoint.settings.date].filter(Boolean), ''];
   if (!document) return [...lines, '## Brief', checkpoint.brief || checkpoint.composer, '', '## Outline', ...(checkpoint.outline?.sections ?? []).map(heading => `- ${heading}`)].join('\n');
-  if (document.abstract) lines.push('## Abstract', document.abstract, '');
+  if (document.abstract) lines.push(`## ${abstractLabel(checkpoint.settings.style)}`, document.abstract, '');
   if (document.keywords.length) lines.push(`Keywords: ${document.keywords.join(', ')}`, '');
   const cell = (text: string) => text.replace(/\|/g, '\\|').replace(/\n/g, ' ');
-  for (const section of document.sections) {
-    lines.push(`## ${section.heading}`, '', ...section.paragraphs.flatMap(text => [text, '']), ...section.bullets.map(text => `- ${text}`), '');
+  for (const [index, section] of document.sections.entries()) {
+    lines.push(`## ${sectionLabel(section.heading, index, checkpoint.settings.style)}`, '', ...section.paragraphs.flatMap(text => [text, '']), ...section.bullets.map(text => `- ${text}`), '');
     if (section.table) lines.push(`| ${section.table.headers.map(cell).join(' | ')} |`, `| ${section.table.headers.map(() => '---').join(' | ')} |`, ...section.table.rows.map(row => `| ${row.map(cell).join(' | ')} |`), '');
     for (const equation of section.math) lines.push('```tex', equation, '```', '');
   }

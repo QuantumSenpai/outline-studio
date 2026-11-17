@@ -6,7 +6,7 @@ import { useWorkspace } from '../../stores/workspaceStore';
 import { Button } from '../ui/button';
 
 export function DocumentEditor({ onClose }: { onClose: () => void }) {
-  const { checkpoint, patch } = useWorkspace();
+  const { checkpoint, revise } = useWorkspace();
   const [document, setDocument] = useState(checkpoint?.document);
   const [diagram, setDiagram] = useState(checkpoint?.diagram);
   const [error, setError] = useState('');
@@ -16,9 +16,7 @@ export function DocumentEditor({ onClose }: { onClose: () => void }) {
     const figure = diagram ? diagramSchema.safeParse(diagram) : null;
     if (!parsed.success || figure && !figure.success) { setError('Check titles, paragraph lengths and diagram labels. Every section needs content.'); return; }
     if (!checkpoint || checkpoint.revision >= 1000) { setError('Revision limit reached. Export this project and start a new request.'); return; }
-    patch({ document: parsed.data, diagram: figure?.success ? figure.data : undefined, review: undefined,
-      revision: checkpoint.revision + 1, tasks: checkpoint.tasks.map(task => task.stage === 'reviewer'
-        ? { ...task, status: 'queued', attempt: 0, summary: 'Content edited. Run a fresh review.', partial: '' } : task) });
+    revise({ document: parsed.data, diagram: figure?.success ? figure.data : undefined });
     onClose();
   }
   return <div className="document-editor form-stack"><h2>Edit accepted content</h2><p className="muted">Save creates a local revision and requires a fresh review. Your current accepted draft stays intact until then.</p>

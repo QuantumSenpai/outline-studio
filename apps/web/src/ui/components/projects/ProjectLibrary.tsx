@@ -10,6 +10,7 @@ import { createProject, deleteProject, duplicateProject } from '@/adapters/stora
 import { projectSchema, type Project } from '@/domain/projects/schema';
 import { messageFrom } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { ProjectBackup, ProjectImport } from './ArchiveActions';
 import { Modal } from '../ui/dialog';
 import { Button } from '../ui/button';
 import '@/ui/styles/projects.css';
@@ -35,6 +36,7 @@ export function ProjectLibrary() {
       {styles.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
       <Button disabled={pending} onClick={() => void perform(async () => { const checkpoint = await createProject(style); router.push(`/workspace?project=${checkpoint.projectId}`); })}>Create local project</Button>
     </div>
+    <ProjectImport />
     <label>Search local projects<input type="search" value={query} maxLength={160} onChange={event => setQuery(event.target.value)} placeholder="Project name" /></label>
     <p className="small muted">Stored on this browser/device. Showing up to 100 matching projects, newest first. Search to find older work. Export backups before clearing browser data.</p>
     {status && <p role="status" className="notice">{status}</p>}
@@ -42,7 +44,7 @@ export function ProjectLibrary() {
     <ul className="project-list">{projects.map(project => <li key={project.id}><div><h2><Link href={`/workspace?project=${project.id}`}>{project.name}</Link></h2>
       <p className="small muted">{project.checkpoint.settings.style} · Revision {project.checkpoint.revision} · {new Date(project.updatedAt).toLocaleString()}</p></div>
       <div className="button-row"><Link className="button button-outline" href={`/workspace?project=${project.id}`}>Open</Link><Link className="text-link" href={`/history?project=${project.id}`}>Version history</Link>
-        <button className="text-button" disabled={pending} onClick={() => { setSelected(project); setName(project.name); setAction('rename'); }}>Rename</button>
+        <ProjectBackup id={project.id} name={project.name} /><button className="text-button" disabled={pending} onClick={() => { setSelected(project); setName(project.name); setAction('rename'); }}>Rename</button>
         <button className="text-button" disabled={pending} onClick={() => void perform(async () => { await duplicateProject(project.id); })}>Duplicate</button>
         <button className="text-button" disabled={pending} onClick={() => { setSelected(project); setAction('delete'); }}>Delete</button></div></li>)}</ul>
     <Modal open={Boolean(selected)} onOpenChange={open => { if (!open) setSelected(null); }} title={action === 'rename' ? 'Rename local project' : 'Delete local project'}

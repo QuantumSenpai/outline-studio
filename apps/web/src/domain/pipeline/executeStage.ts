@@ -16,6 +16,10 @@ export async function executeStage(stage: StageName, signal: AbortSignal): Promi
   await api('/runs', { runId: checkpoint.runId, revision: checkpoint.revision }, signal);
   let last: unknown;
   for (const configured of connections) {
+    signal.throwIfAborted();
+    const liveProviders = useProviders.getState();
+    if (configured.provider !== providerState.primary && !liveProviders.fallback) throw last ?? new Error('Automatic switching is disabled.');
+    if ((liveProviders.cooldowns[configured.provider] ?? 0) > Date.now() || !liveProviders.connections.some(connection => connection.validated && connection.authorized && connection.provider === configured.provider && connection.key === configured.key && connection.model === configured.model)) continue;
     const current = useWorkspace.getState().checkpoint;
     if (!current || current.runId !== checkpoint.runId || current.revision !== checkpoint.revision) throw new Error('A newer revision replaced this task.');
     const task = current.tasks.find(t => t.stage === stage);

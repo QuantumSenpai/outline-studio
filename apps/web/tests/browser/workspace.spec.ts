@@ -21,12 +21,33 @@ test('accepted outline, coworkers, manual revision, review, reload and real down
   const accessibility=await new AxeBuilder({page}).analyze(); expect(accessibility.violations).toEqual([]);
   await page.getByRole('button',{name:'Prepare downloads'}).click();
   await page.getByRole('checkbox',{name:/I have read the review/}).check();
-  for(const label of ['Word report','PDF report','Presentation','Vector diagram','Diagram image']) {
+  await page.evaluate(() => {
+    const OriginalWorker = window.Worker; let fail = true;
+    window.Worker = class extends OriginalWorker {
+      constructor(...args: ConstructorParameters<typeof Worker>) {
+        super(...args);
+        if (fail) { fail = false; queueMicrotask(() => this.dispatchEvent(new Event('error'))); }
+      }
+    };
+  });
+  await page.locator('.export-list > div').filter({hasText:'Word report'}).getByRole('button',{name:'Download',exact:true}).click();
+  await expect(page.locator('.export-panel').getByRole('alert')).toContainText('renderer could not initialize');
+  for(const label of ['Word report','PDF report','Presentation','Vector diagram','Diagram image','Markdown report']) {
     const row=page.locator('.export-list > div').filter({hasText:label});
     const downloadPromise=page.waitForEvent('download',{timeout:45000}); await row.getByRole('button',{name:'Download',exact:true}).click();
     const download=await downloadPromise; expect(await download.failure()).toBeNull();
     await download.saveAs(`../../qa-output/browser-${download.suggestedFilename()}`);
   }
+  await page.getByRole('tab',{name:'History',exact:true}).click();
+  await page.getByRole('button',{name:/Accepted export revision/}).first().click();
+  await expect(page.getByRole('button',{name:/Download retained/})).toHaveCount(6);
+  const backupPromise=page.waitForEvent('download');
+  await page.getByRole('button',{name:'Export complete project ZIP',exact:true}).click();
+  const backup=await backupPromise; const backupPath=await backup.path();
+  if(!backupPath) throw new Error('Project backup was not created.');
+  await page.goto('/projects');
+  await page.getByLabel('Import complete project ZIP',{exact:true}).setInputFiles(backupPath);
+  await expect(page).toHaveURL(/workspace\?project=/);
   await page.waitForTimeout(350); await page.reload(); await page.getByRole('tab',{name:'Document',exact:true}).click();
   await expect(page.getByText('TCP and UDP revised manually').first()).toBeVisible(); expect(errors).toEqual([]);
 });

@@ -1,3 +1,4 @@
+import { abstractLabel, sectionLabel } from '@outline-studio/config';
 import { Paragraph, TextRun, Table, TableCell, TableRow, WidthType, HeadingLevel, ImageRun } from 'docx';
 import type { ExportInput } from '../types';
 
@@ -11,10 +12,10 @@ export function renderBlocks(input: ExportInput): (Paragraph | Table)[] {
     blocks.push(new Paragraph({ text: '', pageBreakBefore: true }));
   }
   blocks.push(new Paragraph({ text: doc.title, heading: HeadingLevel.TITLE }));
-  if (doc.abstract) blocks.push(new Paragraph({ text: 'Abstract', heading: HeadingLevel.HEADING_1 }), paragraph(doc.abstract));
+  if (doc.abstract) blocks.push(new Paragraph({ text: abstractLabel(settings.style), heading: HeadingLevel.HEADING_1 }), paragraph(doc.abstract));
   if (doc.keywords.length) blocks.push(paragraph(`Keywords: ${doc.keywords.join(', ')}`));
-  for (const section of doc.sections) {
-    blocks.push(new Paragraph({ text: section.heading, heading: HeadingLevel.HEADING_1, keepNext: true }));
+  for (const [index, section] of doc.sections.entries()) {
+    blocks.push(new Paragraph({ text: sectionLabel(section.heading, index, settings.style), heading: HeadingLevel.HEADING_1, keepNext: true }));
     blocks.push(...section.paragraphs.map(paragraph));
     blocks.push(...section.bullets.map(text => new Paragraph({ text, bullet: { level: 0 }, spacing: { after: 120 } })));
     if (section.table) {

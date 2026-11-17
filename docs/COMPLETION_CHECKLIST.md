@@ -7,11 +7,11 @@ Scope: the 2026-11-17 completion request is the acceptance specification. ADR 00
 | Approved stack and architecture | Next/Hono/Vercel/Neon source; ADR 005 | Replace obsolete README/env/setup docs | One deployment; runnable setup | Partial |
 | Public routes and hero | Previous 22-test production run; scoped GSAP | Recheck after implementation | Six widths, time samples, reduced motion | Implemented |
 | Controls and dialogs | Focus, labels, pending and PNG regressions | Recheck shared changes | Keyboard, touch, recovery, no stale overlays | Implemented |
-| Local project library | Only current checkpoint/archive table | Create/open/search/rename/duplicate/delete | CRUD browser and storage tests | Not started |
-| Autosave and recovery | Debounced single current checkpoint | Visible state, multi-project-safe writes, flush | Reload and failed-save tests | Partial |
-| Named snapshots and version history | Revision counter; manual archives | List/preview/compare/restore without history loss | Restore creates a higher revision | Not started |
+| Local project library | fc5428c; project CRUD browser flow passed | Six-width final checks | CRUD browser and storage tests | Implemented |
+| Autosave and recovery | Project-aware save state, stale-save rejection and reload tested | Storage-failure/multi-tab final checks | Reload and failed-save tests | Implemented |
+| Named snapshots and version history | Snapshot/compare/restore browser and storage tests passed | Final accessibility/responsive check | Restore creates a higher revision | Implemented |
 | Per-version exports | Only current document export | Export historical accepted revision | Historical file content test | Not started |
-| Complete project ZIP | Only single-checkpoint JSON | Manifest, versions, assets, retained files, bounded import | Safe round trip; corrupt/oversized/path attacks | Not started |
+| Complete project ZIP | Manifest/hash/path/expansion tests; actual file round trip passed | Final release coverage | Safe round trip; corrupt/oversized/path attacks | Implemented |
 | Four distinct templates | Prompt instructions and preview variants | Verify export semantics and actual defaults | Unrelated topics across templates | Partial |
 | Academic settings and logo | Zod fields and cover renderers | Validate exported fields/numbering/logo | Viewer inspection and artifacts | Implemented |
 | Planner and accepted outline | XState; Zod schema; mock browser coverage | Negative prerequisites and stale identity tests | No downstream work before acceptance | Implemented |
@@ -26,7 +26,7 @@ Scope: the 2026-11-17 completion request is the acceptance specification. ADR 00
 | Neon persistence/migrations | Initial migration and metadata tables | Isolated DB tests and reproducibility evidence | Constraints, races, ownership, retention | Partial |
 | Database isolation | Existing local config must not be exposed | Discover isolated test database/branch | No destructive tests on user data | Blocked |
 | DOCX/PDF/PPTX | Actual downloads passed; basic renderer tests | Viewer layouts, long content, warnings/unsupported glyphs | Real viewers plus assertions | Partial |
-| Markdown and bundle outputs | Not implemented | Accepted revision Markdown and project ZIP | Content and MIME assertions | Not started |
+| Markdown and bundle outputs | Revision Markdown and full ZIP wired; download test passed | Final content/release check | Content and MIME assertions | Implemented |
 | Static SVG/PNG diagrams | Validated IR; sanitized Graphviz assets | Worker error/deadline handling | Black/white labels; injected input tests | Implemented |
 | Research/source integrity | Read-only Crossref lookup | Verify metadata provenance/import handling | No invented source promoted to verified | Partial |
 | Cookies and legal | Working preference storage; existing legal pages | Match new project retention and operator details | Reopen/change/reject; accurate disclosures | Partial |
