@@ -1,0 +1,16 @@
+.env*
+**/.env*
+.neon
+.agents
+.codex
+.taste-skill
+qa-output
+**/node_modules
+**/.next
+**/.vercel
+**/coverage
+**/playwright-report
+**/test-results
+**/*.tsbuildinfo
+**/__pycache__
+.pnpm-store
