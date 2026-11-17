@@ -41,3 +41,7 @@ Updated 17 November 2026. Scope is the current completion request and the simple
 | Setup/report/handoff | README/env/setup reconciled; report and exact handoff | Operator release prerequisites | Evidence distinguishes mocked/live/blocked | Implemented |
 | Context7 | Tool unavailable; official docs fallback used | Tool connection if specifically required | Do not claim Context7 execution | Blocked |
 | Deployment readiness | Local optimized build and isolated DB pass; other-agent config preserved | Dashboard root/env/live/retention verification | No push/deploy by this agent | Partial |
+
+## Subsequent deployment evidence
+
+User authorized Vercel deployment after completion. Production release and domain are now verified for the hosted smoke scope in DEPLOYMENT_REPORT.md. The full local test suite, live AI inference, legal/operator completion and operational monitoring remain distinct; deployment does not mark those untested paths verified.

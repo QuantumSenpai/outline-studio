@@ -1,6 +1,6 @@
 # Outline Studio completion report
 
-Date: 17 November 2026. This report describes implemented work and observed checks. It does not certify an unrestricted production launch or every browser/provider. Latest user direction: keep the assignment/prompting workspace simple, preserve the working layout and make version history safe.
+Date: 17 November 2026. Subsequent user-authorized production deployment is recorded in [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md); it supersedes the historical no-deployment statements below. This report describes implemented work and observed checks. It does not certify an unrestricted production launch or every browser/provider. Latest user direction: keep the assignment/prompting workspace simple, preserve the working layout and make version history safe.
 
 ## 1. Inspected starting state
 

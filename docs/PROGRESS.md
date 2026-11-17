@@ -128,3 +128,9 @@
 - Final production Chromium run: 27/27 passed in 53.9 seconds at localhost:3005, including six-width provider setup, private indexing/404 navigation, actual six-format downloads, retained-byte equality, snapshot regeneration and ZIP round trip. No test assertions were removed.
 - Lint/source rules, strict TypeScript, 38 unit/contract tests, separate 8 isolated DB integration tests, optimized build, frozen offline install, dependency audit and final whitespace review passed. Detailed scope and limitations are in COMPLETION_REPORT.md.
 - Provider/workspace fixes committed as dad3b60. This agent made no push or deployment; the other agent’s existing deployment commits were preserved.
+
+## User-authorized Vercel deployment
+- After completion, the user explicitly requested deployment and a better domain using CLI. Confirmed the existing outline-studio project and apps/web Root Directory; moved config into that directory and excluded local env/Neon/QA artifacts from uploads. Commit cfb32d0.
+- Deployed and promoted dpl_5bVa6if91BRpUNjKLiyj1ws9abMh. New canonical address https://outline-flow.vercel.app; production APP_ORIGIN/NEXT_PUBLIC_SITE_URL match it. First-choice outline-studio.vercel.app was taken.
+- Hosted Chromium checks at 390/1440 passed for six routes and provider UI; actual secure guest session, scoped DB metadata and cleanup returned 200. No page runtime errors; no AI quota used. Legacy workspace remains accessible for local project export because IndexedDB cannot move across domains automatically.
+- Detailed release/limitations/rollback notes: DEPLOYMENT_REPORT.md. No Git push or production schema reset was performed.

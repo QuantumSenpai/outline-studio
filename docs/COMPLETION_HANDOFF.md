@@ -38,3 +38,7 @@ Consult COMPLETION_REPORT.md and COMPLETION_CHECKLIST.md. Live inference require
 ## Preserve unrelated work
 
 Duplicate .gitignore line and untracked apps/web/.gitignore from the stopped deployment agent are intentionally unstaged. Root dependencies/neon.ts/lock changes were already included by that agent in 26ae33d; do not rewrite history to split them now. No push, deploy, amend or rewrite is authorized by this continuation.
+
+## Subsequent authorized deployment
+
+User later explicitly requested deploy/domain change. Source cfb32d0 is live at https://outline-flow.vercel.app, dpl_5bVa6if91BRpUNjKLiyj1ws9abMh. apps/web/vercel.json and root .vercelignore now match actual project settings. Hosted six-route/two-width smoke and real signed guest-session/DB/cleanup checks pass. Previous domain remains accessible for local ZIP export, with no redirect; server operations use the new canonical domain. See DEPLOYMENT_REPORT.md. No Git push or production schema reset. Earlier no-deploy boundary was superseded by this explicit request.
