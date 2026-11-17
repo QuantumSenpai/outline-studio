@@ -39,7 +39,7 @@ Updated 17 November 2026. Scope is the current completion request and the simple
 | Performance | Local bundle/CLS/dialog/API and isolated DB probes | Vercel cold starts, field metrics, provider latency | Method/environment/limits documented | Implemented |
 | Security checks | Audit0, tracked secret patterns, authorization/import regressions | External penetration/production review | No key leakage claim beyond tested scope | Verified |
 | Setup/report/handoff | README/env/setup reconciled; report and exact handoff | Operator release prerequisites | Evidence distinguishes mocked/live/blocked | Implemented |
-| Context7 | Tool unavailable; official docs fallback used | Tool connection if specifically required | Do not claim Context7 execution | Blocked |
+| Context7 | Became available for composer follow-up; current Groq streaming/auth docs queried | Earlier framework checks used official docs fallback | Distinguish actual Groq query from prior unavailable tool | Implemented |
 | Deployment readiness | Local optimized build and isolated DB pass; other-agent config preserved | Dashboard root/env/live/retention verification | No push/deploy by this agent | Partial |
 
 ## Subsequent deployment evidence

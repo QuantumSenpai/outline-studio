@@ -42,3 +42,7 @@ Duplicate .gitignore line and untracked apps/web/.gitignore from the stopped dep
 ## Subsequent authorized deployment
 
 User later explicitly requested deploy/domain change. Source cfb32d0 is live at https://outline-flow.vercel.app, dpl_5bVa6if91BRpUNjKLiyj1ws9abMh. apps/web/vercel.json and root .vercelignore now match actual project settings. Hosted six-route/two-width smoke and real signed guest-session/DB/cleanup checks pass. Previous domain remains accessible for local ZIP export, with no redirect; server operations use the new canonical domain. See DEPLOYMENT_REPORT.md. No Git push or production schema reset. Earlier no-deploy boundary was superseded by this explicit request.
+
+## Current composer/API follow-up
+
+6461b38 fixes short greeting send, Enter/Shift+Enter and preserved intake, with 41 unit/contract and 28 local browser tests passing. User explicitly supplied/authorized a Groq key test: one actual gpt-oss-20b planner/writer/diagram/reviewer journey and DOCX passed, test metadata cleaned up, no key in source/logs/report. Current production is dpl_5s2XgAFHFX24WhgFMW5xVW2gUTE7 at outline-flow.vercel.app. Hosted 390/1440 greeting checks passed with no provider calls/errors. Context7 became available and Groq streaming/auth docs were queried. Earlier no-live/Context7-unavailable statements are historical. See COMPOSER_API_REPORT.md. No Git push; rotate the chat-shared key through the owner’s console after testing.

@@ -2,7 +2,7 @@
 
 This deployment was explicitly authorized after the completion report. It supersedes earlier statements that this agent had not deployed. No Git push was performed.
 
-## Live release
+## Initial release
 
 - Primary/canonical address: https://outline-flow.vercel.app
 - Existing project: outline-studio, confirmed Root Directory apps/web, Next.js, Node 26.x.
@@ -33,3 +33,7 @@ Earlier local release evidence remains: 38 unit/contract tests, 8 isolated Neon 
 Vercel currently reports this release Ready and promoted. Previous production URL observed before deployment: https://outline-studio-g20z35k1t-quantumsenpais-projects.vercel.app. A rollback requires inspecting that deployment's actual state and restoring its matching origin/domain settings before promotion; blindly promoting an older build with different APP_ORIGIN can break mutations. No rollback or automatic-monitoring guarantee is claimed.
 
 Operator/legal details, monitored retention scheduling, full Office fidelity, live provider inference and broader devices/browsers remain as documented in COMPLETION_REPORT.md. Keep production migrations separate and reviewed; this deployment did not change/reset production schemas. Secrets remain server-only and were not printed.
+
+## Current composer patch
+
+The latest deployed source is 6461b38, dpl_5s2XgAFHFX24WhgFMW5xVW2gUTE7, at the same canonical outline-flow.vercel.app address. Hosted greeting/send keyboard checks passed at 390/1440 px. One authorized real Groq generation journey and DOCX export also passed on the unchanged backend before the patch. See COMPOSER_API_REPORT.md. No key is recorded and no Git push was performed.

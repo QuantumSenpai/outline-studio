@@ -42,4 +42,4 @@ The local greeting helper asks for a useful document brief; arbitrary ongoing AI
 
 ## Deployment
 
-The composer fix is prepared as a follow-up to the authorized Vercel release; promotion is pending at this checkpoint. Final deployment identifier and hosted short-message checks are recorded in PROGRESS.md after promotion. No Git push is performed.
+Source commit 6461b38 is deployed and promoted on https://outline-flow.vercel.app/workspace as dpl_5s2XgAFHFX24WhgFMW5xVW2gUTE7. Immutable URL: https://outline-studio-nd72tl863-quantumsenpais-projects.vercel.app. Vercel build and health checks passed. Public Chromium checks at 390 and 1440 px passed greeting Enter-to-send, short-message button submission, Shift+Enter, empty composer recovery, no page overflow and no runtime errors. These hosted greeting checks made zero provider validation/generation requests. The actual live Groq workflow above was performed once before this frontend-only patch; provider/backend adapters were unchanged. No Git push was performed.

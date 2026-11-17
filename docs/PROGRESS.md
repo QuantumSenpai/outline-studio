@@ -139,3 +139,8 @@
 - Root cause: outline-only composer disabled inputs shorter than 10 characters, had no greeting/clarification path, and lacked Enter-to-send. The screenshot input was eight characters. Added Send message, Enter/Shift+Enter/IME handling, local greeting/intake guidance with no provider quota, retained initial conversation on first planning and removed empty Latest messages affordance.
 - Supplied Groq credential passed actual UI validation and one complete openai/gpt-oss-20b planner/writer/diagram/reviewer journey on production, followed by a real DOCX download. No page errors; test-session server metadata cleaned up. No provider adapter failure was reproduced. Key never added to source/tests/logs/screenshots/report.
 - Checks: 41 unit/contract tests and 28 production-local browser tests passed; lint/source rules, strict TypeScript, optimized build and visual checks at 390/1440 passed. Details and scope: COMPOSER_API_REPORT.md.
+
+### Composer patch deployed and publicly verified
+- Commit 6461b38 promoted to outline-flow.vercel.app as dpl_5s2XgAFHFX24WhgFMW5xVW2gUTE7 after successful Vercel build/health verification.
+- Public 390/1440 px checks passed Hii via Enter, short text via Send message and Shift+Enter newline. Zero model/validation calls during greeting tests, no page runtime errors and no horizontal overflow. Full authorized Groq generation had already passed once on the unchanged backend.
+- COMPOSER_API_REPORT.md records root cause, exact live scope, checks and limitations without credentials. No Git push. Unrelated ignore-file work remains untouched.
