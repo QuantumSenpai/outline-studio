@@ -31,8 +31,11 @@ test('responsive layouts, reduced motion and private indexing',async({page})=>{
   await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
   await expect(page.getByRole('link',{name:'Start a document'}).first()).toBeVisible();
   await page.screenshot({path:'../../qa-output/reduced-motion.png',fullPage:true});
-  await page.goto('/workspace'); expect(await page.locator('meta[name=robots]').getAttribute('content')).toContain('noindex');
-  const sitemap=await page.request.get('/sitemap.xml'); expect(await sitemap.text()).not.toContain('/workspace');
+  const sitemap=await (await page.request.get('/sitemap.xml')).text();
+  for (const path of ['/workspace', '/projects', '/history']) {
+    await page.goto(path); expect(await page.locator('meta[name=robots]').getAttribute('content')).toContain('noindex');
+    expect(sitemap).not.toContain(path);
+  }
 });
 test('feedback stays editable when persistence fails and acknowledges actual confirmation',async({page})=>{
   await page.route('**/api/session',route=>route.fulfill({json:{connected:true}}));
@@ -44,4 +47,16 @@ test('feedback stays editable when persistence fails and acknowledges actual con
   await page.route('**/api/session',route=>route.fulfill({json:{connected:true}}));
   await page.route('**/api/feedback',route=>route.fulfill({status:201,json:{saved:true,id:'synthetic'}}));
   await page.getByRole('button',{name:/Send feedback/}).click(); await expect(page.getByText('Message received.')).toBeVisible();
+});
+
+test('not-found preserves a usable return path at phone and desktop widths', async ({ page }) => {
+  for (const width of [360, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const response = await page.goto('/missing-outline-completion-page');
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole('heading', { name: 'Let’s find your flow.' })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.getByRole('link', { name: 'Return to workspace', exact: true }).click();
+    await expect(page.getByRole('textbox', { name: 'Your document request' })).toBeVisible();
+  }
 });

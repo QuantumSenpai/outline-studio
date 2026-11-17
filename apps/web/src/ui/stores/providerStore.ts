@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export const savedConnectionsSchema = z.array(connectionSchema).max(4);
 export type ConfiguredConnection = Connection & { validated: boolean; verifiedAt: string };
-type ProviderState = {
+export type ProviderState = {
   connections: ConfiguredConnection[]; fallback: boolean; primary: ProviderId | null; cooldowns: Partial<Record<ProviderId, number>>;
   put: (connection: ConfiguredConnection) => void; remove: (provider: ProviderId) => void;
   setPrimary: (provider: ProviderId) => void; setFallback: (value: boolean) => void;

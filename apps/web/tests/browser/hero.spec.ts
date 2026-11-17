@@ -77,6 +77,7 @@ test('existing provider dialog updates hero and keeps the connection in workspac
   await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
   await page.getByRole('button', { name: 'Connect provider', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Connect your AI' });
+  await dialog.getByRole('button', { name: 'Continue', exact: true }).click();
   await dialog.getByLabel('API key', { exact: true }).fill('synthetic-test-key');
   await dialog.getByRole('checkbox', { name: /I authorize/ }).check();
   await dialog.getByRole('button', { name: 'Validate connection & load models' }).click();

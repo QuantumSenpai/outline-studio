@@ -49,3 +49,26 @@ test('vault controls recover from wrong passphrase and revalidate unlocked conne
   await dialog.getByRole('button', { name: 'Delete saved vault', exact: true }).click();
   await expect(dialog.getByRole('status')).toContainText('Encrypted vault deleted');
 });
+
+test('locking the vault during revalidation cannot resurrect a session key', async ({ page }) => {
+  await mockProvider(page); await page.goto('/workspace');
+  await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
+  await connectProvider(page); await page.getByRole('button', { name: 'groq connected', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByText('Optional encrypted vault', { exact: true }).click();
+  await dialog.getByLabel('Vault passphrase').fill('synthetic-audit-passphrase');
+  await dialog.getByRole('button', { name: 'Encrypt & save', exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText('Keys encrypted');
+  await dialog.getByRole('button', { name: 'Lock session', exact: true }).click();
+  await dialog.getByLabel('Vault passphrase').fill('synthetic-audit-passphrase');
+  await dialog.getByRole('button', { name: 'Unlock vault', exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText('Vault unlocked');
+  await page.route('**/api/providers/validate', async route => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await route.fulfill({ json: { models: ['test/chat'], verifiedAt: new Date().toISOString() } });
+  });
+  await dialog.getByRole('button', { name: 'Revalidate', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Lock session', exact: true }).click();
+  await page.waitForTimeout(800);
+  await expect(dialog.getByRole('heading', { name: 'Your connections', exact: true })).toHaveCount(0);
+});

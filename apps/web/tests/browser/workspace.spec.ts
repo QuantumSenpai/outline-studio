@@ -1,5 +1,6 @@
 import { test,expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFile } from 'node:fs/promises';
 import { connectProvider,mockProvider } from './mockProvider';
 
 test('accepted outline, coworkers, manual revision, review, reload and real downloads',async({page})=>{
@@ -32,15 +33,30 @@ test('accepted outline, coworkers, manual revision, review, reload and real down
   });
   await page.locator('.export-list > div').filter({hasText:'Word report'}).getByRole('button',{name:'Download',exact:true}).click();
   await expect(page.locator('.export-panel').getByRole('alert')).toContainText('renderer could not initialize');
+  const originals = new Map<string, Buffer>();
   for(const label of ['Word report','PDF report','Presentation','Vector diagram','Diagram image','Markdown report']) {
     const row=page.locator('.export-list > div').filter({hasText:label});
     const downloadPromise=page.waitForEvent('download',{timeout:45000}); await row.getByRole('button',{name:'Download',exact:true}).click();
     const download=await downloadPromise; expect(await download.failure()).toBeNull();
+    const path = await download.path(); if (!path) throw new Error('Missing generated file');
+    originals.set(download.suggestedFilename(), await readFile(path));
     await download.saveAs(`../../qa-output/browser-${download.suggestedFilename()}`);
   }
   await page.getByRole('tab',{name:'History',exact:true}).click();
   await page.getByRole('button',{name:/Accepted export revision/}).first().click();
   await expect(page.getByRole('button',{name:/Download retained/})).toHaveCount(6);
+  const retained = page.getByRole('button', { name: /Download retained/ }).first();
+  const retainedName = (await retained.innerText()).replace('Download retained ', '');
+  const retainedPromise = page.waitForEvent('download'); await retained.click();
+  const retainedDownload = await retainedPromise; const retainedPath = await retainedDownload.path();
+  if (!retainedPath) throw new Error('Missing retained file');
+  expect(await readFile(retainedPath)).toEqual(originals.get(retainedName));
+  await page.getByRole('combobox', { name: 'Regenerate snapshot format', exact: true }).selectOption('md');
+  const historicalPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Regenerate snapshot file', exact: true }).click();
+  const historicalPath = await (await historicalPromise).path();
+  if (!historicalPath) throw new Error('Missing historical file');
+  expect(await readFile(historicalPath, 'utf8')).toContain('TCP and UDP revised manually');
   const backupPromise=page.waitForEvent('download');
   await page.getByRole('button',{name:'Export complete project ZIP',exact:true}).click();
   const backup=await backupPromise; const backupPath=await backup.path();

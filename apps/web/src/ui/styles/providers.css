@@ -1,0 +1,36 @@
+.step-flow { display: grid; gap: 18px; }
+.step-flow h3 { font-size: 1rem; margin: 0; }
+.step-flow > p { margin: 0; }
+.provider-cards { display: grid; gap: 10px; }
+.provider-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; text-align: left; background: var(--white); cursor: pointer; transition: border-color var(--fast), background var(--fast); }
+@media (hover: hover) { .provider-card:hover { border-color: var(--indigo); background: #faf9f6; } }
+.provider-card.selected { border-color: var(--indigo); background: #f0eefc; }
+.provider-card strong { font-size: .95rem; color: var(--ink); }
+.provider-card span { font-size: .8rem; color: var(--muted); }
+.provider-card .lucide-check { color: var(--indigo); }
+.step-flow > .provider-steps { margin-top: 12px; padding-left: 20px; color: var(--muted); }
+.step-flow > .provider-steps li { margin-bottom: 6px; font-size: .85rem; }
+.step-flow > .text-link { margin-top: 8px; display: inline-block; }
+.step-flow .field { display: grid; gap: 6px; }
+.step-flow .check-label { margin-top: 12px; }
+.step-flow .notice { margin-top: 12px; }
+.step-flow > .button-row { display: flex; gap: 10px; margin-top: 8px; }
+.step-flow .button { flex: 1; }
+.provider-connections { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 20px; }
+.provider-connections h3 { font-size: .95rem; margin: 0 0 16px; }
+.connection-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.connection-row .check-label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.connection-row .check-label strong { color: var(--ink); }
+.connection-row .check-label small { display: block; font-size: .75rem; }
+.connection-row .check-label small.success { color: var(--teal); }
+.connection-row .check-label small.warning { color: #d9a23c; }
+.connection-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.connection-actions .text-button { font-size: .75rem; }
+.fallback-toggle { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); cursor: pointer; }
+.fallback-toggle input { margin-top: 4px; }
+.fallback-toggle strong { font-size: .9rem; }
+.fallback-toggle small { display: block; color: var(--muted); font-size: .75rem; margin-top: 2px; }
+.vault-controls { margin-top: 24px; }
+
+.step-flow input { min-width: 0; }
+.provider-card:focus-visible { outline: 3px solid var(--indigo); outline-offset: 3px; }

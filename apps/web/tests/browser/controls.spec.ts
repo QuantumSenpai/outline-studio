@@ -33,7 +33,9 @@ test('workspace dialogs restore focus, unlock scrolling and have mobile names', 
 test('provider validation recovers from failure to success with readable pending state', async ({ page }) => {
   await page.route('**/api/session', route => route.fulfill({ json: { connected: true } }));
   let fail = true;
+  const submittedKeys: string[] = [];
   await page.route('**/api/providers/validate', async route => {
+    submittedKeys.push(route.request().postDataJSON().key);
     await new Promise(resolve => setTimeout(resolve, 250));
     await route.fulfill(fail ? { status: 503, json: { message: 'Synthetic validation outage.' } }
       : { json: { models: ['test/chat'], verifiedAt: new Date().toISOString() } });
@@ -42,6 +44,7 @@ test('provider validation recovers from failure to success with readable pending
   await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
   await page.getByRole('button', { name: 'Connect AI', exact: true }).click();
   const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Continue', exact: true }).click();
   await dialog.getByLabel('API key', { exact: true }).fill('synthetic-test-key');
   await dialog.getByRole('checkbox', { name: /I authorize/ }).check();
   await dialog.getByRole('button', { name: 'Validate connection & load models' }).click();
@@ -50,6 +53,7 @@ test('provider validation recovers from failure to success with readable pending
   fail = false;
   await dialog.getByRole('button', { name: 'Validate connection & load models' }).click();
   await dialog.getByRole('button', { name: 'Use this connection' }).click();
+  expect(submittedKeys).toEqual(['synthetic-test-key', 'synthetic-test-key']);
   await dialog.getByRole('button', { name: 'Close dialog' }).click();
   await expect(page.getByRole('button', { name: 'groq connected', exact: true })).toBeFocused();
 });
@@ -64,13 +68,16 @@ test('closing pending validation discards stale results and permits a fresh atte
   await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
   await page.getByRole('button', { name: 'Connect AI', exact: true }).click();
   const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Continue', exact: true }).click();
   await dialog.getByLabel('API key', { exact: true }).fill('synthetic-test-key');
   await dialog.getByRole('checkbox', { name: /I authorize/ }).check();
   await dialog.getByRole('button', { name: 'Validate connection & load models' }).click();
-  await expect(dialog.getByRole('combobox', { name: 'Provider', exact: true })).toBeDisabled();
+  await expect(dialog.getByRole('button', { name: '← Back', exact: true })).toBeDisabled();
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Connect AI', exact: true }).click();
   await page.waitForTimeout(1100);
-  await expect(dialog.getByLabel('Available model', { exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole('combobox', { name: 'Available model', exact: true })).toHaveCount(0);
+  await dialog.getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(dialog.getByLabel('API key', { exact: true })).toHaveValue('');
   await expect(dialog.getByRole('button', { name: 'Validate connection & load models' })).toBeDisabled();
 });

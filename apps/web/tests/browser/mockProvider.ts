@@ -1,11 +1,14 @@
 import type { Page } from '@playwright/test';
-import { stageRequestSchema } from '@outline-studio/schemas';
+import { stageRequestSchema, connectionSchema } from '@outline-studio/schemas';
 import { outline,document,diagram,review } from '../fixtures';
 
 export async function mockProvider(page: Page, failure?: 'fallback' | 'exhausted' | 'slow') {
   const stages: string[] = [];
   await page.route('**/api/session',route=>route.fulfill({json:{connected:true}}));
-  await page.route('**/api/providers/validate',route=>route.fulfill({json:{models:['test/chat'],verifiedAt:new Date().toISOString()}}));
+  await page.route('**/api/providers/validate',route=>{
+    connectionSchema.parse(route.request().postDataJSON());
+    return route.fulfill({json:{models:['test/chat'],verifiedAt:new Date().toISOString()}});
+  });
   await page.route('**/api/runs',route=>route.fulfill({json:{saved:true}}));
   await page.route('**/api/stages',async route=>{
     const request = stageRequestSchema.parse(route.request().postDataJSON()); stages.push(`${request.stage}:${request.connection.provider}`);
@@ -23,7 +26,8 @@ export async function mockProvider(page: Page, failure?: 'fallback' | 'exhausted
 export async function connectProvider(page: Page, provider='groq') {
   await page.getByRole('button',{name:/Connect AI|groq connected|gemini connected/}).click();
   const dialog = page.getByRole('dialog',{name:'Connect your AI'});
-  await dialog.getByRole('combobox',{name:'Provider',exact:true}).selectOption(provider);
+  await dialog.locator('.provider-card').filter({ has: page.locator('strong', { hasText: new RegExp(`^${provider}$`, 'i') }) }).click();
+  await dialog.getByRole('button', { name: 'Continue', exact: true }).click();
   await dialog.getByLabel('API key',{exact:true}).fill('synthetic-test-key');
   await dialog.getByRole('checkbox',{name:/I authorize/}).check();
   await dialog.getByRole('button',{name:'Validate connection & load models'}).click();
