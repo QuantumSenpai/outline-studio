@@ -37,3 +37,9 @@ Operator/legal details, monitored retention scheduling, full Office fidelity, li
 ## Current composer patch
 
 The latest deployed source is 6461b38, dpl_5s2XgAFHFX24WhgFMW5xVW2gUTE7, at the same canonical outline-flow.vercel.app address. Hosted greeting/send keyboard checks passed at 390/1440 px. One authorized real Groq generation journey and DOCX export also passed on the unchanged backend before the patch. See COMPOSER_API_REPORT.md. No key is recorded and no Git push was performed.
+
+## Chat assistant release and incident — 18 November 2026
+
+Commit bb0f978 was pushed to origin/main and deployed as dpl_FQetZt4QCKHJ4X8SRexiQLiFnpmq. The build and alias succeeded, but the first hosted health check returned 500: `pdf-parse` loads `pdfjs-dist`, whose Node entry references `DOMMatrix` at module scope when `@napi-rs/canvas` is unavailable on Vercel. All API routes shared that bundle, so the failure was not limited to PDF chat.
+
+Production was immediately promoted back to dpl_5s2XgAFHFX24WhgFMW5xVW2gUTE7 and health returned 200. Fix: install minimal DOMMatrix/ImageData/Path2D stand-ins before a dynamic, request-time import of `pdf-parse`; text extraction needs no canvas rendering. Verified with typecheck, lint, 49 unit/contract tests, optimized build and a preview deployment dpl_5JFYZmmeLT37yjrKbaw8zXo4Bwjf whose `/api/health` returned 200. The production redeploy and final hosted checks are recorded below after completion. Rollback remains the previously promoted deployment; it uses the same APP_ORIGIN/canonical domain, so no domain reconfiguration is required.

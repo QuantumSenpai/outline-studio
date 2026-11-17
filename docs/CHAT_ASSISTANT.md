@@ -13,6 +13,7 @@ Chat is a general, streaming conversation mode in the existing workspace. It is 
 ## Limits and disclosures
 - 6 attachments per message, 4 MB per file, 9 MB request body, 20,000 characters of extracted text per file, 16,000-character reply cap.
 - Scanned/image-only PDFs may yield no text; the reply says so and never invents content. No OCR is performed.
+- On Node hosts without a canvas package, minimal DOM globals are installed before the PDF parser is imported at request time; text extraction does not need canvas rendering.
 - DOCX text extraction reads `word/document.xml` only; complex fields, comments and embedded objects are not extracted.
 - Vision support, quotas, model accuracy and citation validity are provider/account dependent and unverified except where separately recorded.
 - Retrieved documentation and attachments are untrusted reference data, never instructions that override the system prompt.

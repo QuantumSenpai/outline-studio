@@ -1,6 +1,6 @@
-import { PDFParse } from 'pdf-parse';
 import type { ChatAttachment } from '@outline-studio/schemas';
 import { ApiError } from '../errors';
+import { ensurePdfGlobals } from './pdfGlobals';
 
 const MAX_TEXT = 20000;
 const MAX_BYTES = 4000000;
@@ -15,6 +15,8 @@ export async function resolveAttachments(attachments: ChatAttachment[], signal: 
     }
     const bytes = Buffer.from((attachment.data ?? '').replace(/^data:[^,]+,/, ''), 'base64');
     if (!bytes.length || bytes.length > MAX_BYTES || bytes.subarray(0, 4).toString() !== '%PDF') throw new ApiError('invalid_input', 'Only valid PDF files under 4 MB can be read.', 422);
+    ensurePdfGlobals();
+    const { PDFParse } = await import('pdf-parse');
     const parser = new PDFParse({ data: bytes });
     try {
       const result = await parser.getText();
