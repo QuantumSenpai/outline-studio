@@ -12,14 +12,6 @@
   <a href="docs/assets/banner-static.png">View static hero PNG</a>
 </p>
 
-## Project status
-
-**Pre-implementation. No runnable application yet.** The repository contains documentation, artwork and the MIT license. There is no application source, package manifest or application test suite. The animations illustrate the intended product; they are not recordings of working software.
-
-| Available now | Next to implement · Phase 1 | Later phases |
-| :--- | :--- | :--- |
-| Project documentation, reproducible artwork and license | Provider adapters, Zod Document IR, single agent chain, DOCX/PDF export and key vault | PPTX, diagrams, rubric extraction, review loops and more |
-
 ## One assignment, less rework
 
 An assignment can require a report, slides and a diagram. Rebuilding the same ideas in separate tools makes revisions slow and inconsistencies easy to miss. Outline Studio is designed around one structured source that can feed several document renderers.
