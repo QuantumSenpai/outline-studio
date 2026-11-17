@@ -6,6 +6,7 @@ import { feedbackRoutes } from './routes/feedback';
 import { providerRoutes } from './routes/providers';
 import { stageRoutes } from './routes/stages';
 import { sourceRoutes } from './routes/sources';
+import { chatRoutes } from './routes/chat';
 
 export const app = new Hono<{ Variables: { requestId: string } }>().basePath('/api');
 app.use('*', async (c, next) => {
@@ -18,6 +19,7 @@ app.use('*', async (c, next) => {
   c.header('Server-Timing', `app;dur=${(performance.now() - started).toFixed(1)}`);
 });
 app.get('/health', c => c.json({ status: 'ok', databaseConfigured: Boolean(process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL), sessionConfigured: Boolean(process.env.SESSION_SECRET) }));
+app.route('/', chatRoutes);
 app.route('/', sessionRoutes).route('/', feedbackRoutes).route('/', providerRoutes).route('/', stageRoutes).route('/', sourceRoutes);
 app.onError((error, c) => {
   if (error instanceof ApiError) {

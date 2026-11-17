@@ -6,6 +6,7 @@ test('short messages send without quota and Enter/Shift+Enter preserve an action
   const stages = await mockProvider(page);
   await page.goto('/workspace');
   await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
+  await page.getByRole('button', { name: 'Create document', exact: true }).click();
   const composer = page.getByRole('textbox', { name: 'Your document request' });
   const send = page.getByRole('button', { name: 'Send message', exact: true });
   await composer.fill('   '); await expect(send).toBeDisabled();

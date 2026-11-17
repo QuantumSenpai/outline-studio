@@ -5,7 +5,7 @@ export function compareVersions(before: Checkpoint, after: Checkpoint) {
   const add = (field: string, left: unknown, right: unknown) => {
     if (JSON.stringify(left) !== JSON.stringify(right)) changes.push({ field, before: typeof left === 'string' ? left : JSON.stringify(left ?? null), after: typeof right === 'string' ? right : JSON.stringify(right ?? null) });
   };
-  add('Draft request', before.composer, after.composer); add('Conversation', before.messages, after.messages);
+  add('Conversation mode', before.mode, after.mode); add('Draft request', before.composer, after.composer); add('Conversation', before.messages, after.messages);
   add('Brief', before.brief, after.brief); add('Document title', before.document?.title, after.document?.title);
   add('Accepted outline', before.outline, after.outline); add('Abstract', before.document?.abstract, after.document?.abstract);
   const headings = new Set([...(before.document?.sections ?? []), ...(after.document?.sections ?? [])].map(section => section.heading));

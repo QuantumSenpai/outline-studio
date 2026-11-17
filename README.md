@@ -6,6 +6,14 @@
 
 Implemented application, with release limitations documented in [completion report](docs/COMPLETION_REPORT.md) and [acceptance checklist](docs/COMPLETION_CHECKLIST.md). Live provider inference and public deployment are not verified. Free software does not mean free model usage.
 
+## Chat assistant
+
+Open Workspace for a streaming, ChatGPT-style conversation with your selected provider. Chat keeps the full transcript locally and sends a bounded recent context. It handles greetings, explanations, coding and step-by-step assignment help. Quick actions can prefill a solving, explanation, drafting or checking prompt. Switch to Create document for accepted outlines, coworkers and coordinated exports; chatting does not overwrite accepted documents.
+
+Attach up to 6 files per message (4 MB each): images, Markdown/TXT, PDF and DOCX. Use Camera for a phone/photo capture. Markdown and DOCX text is read in your browser, PDF text on our same-origin server, and images are resized before upload. Attached text is sent with your message; images are only sent to the model when you enable the vision option and the chosen model supports images. Only file names and extracted text are saved locally; raw file bytes are never stored in IndexedDB or project backups.
+
+Enable Context7 documentation when asking about software. Enter a separate public docs question/library hint; only those fields go to Context7. Retrieved source links stay with the reply. Anonymous lookup worked in verification but has low limits; optional server-only CONTEXT7_API_KEY enables the operator's account limits. Lookup failure is disclosed and ordinary chat remains available. Retrieved documentation is untrusted reference data, not proof of claim correctness.
+
 ## The workflow
 
 Create/open a local project → select one of four templates → connect a provider → enter a brief → approve an outline → run writer/diagram tasks → review/edit → export → snapshot/restore.

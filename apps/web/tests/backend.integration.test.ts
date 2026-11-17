@@ -114,4 +114,21 @@ describe.skipIf(!credentialsPath)('isolated Neon database and real Hono contract
     await expect(acquireStage(owner, make('planner'))).rejects.toThrow(/concurrency/);
     await Promise.all([finishStage(first, 'failed'), finishStage(second, 'failed')]);
   }, 30000);
+  it('streams owned general chat, rejects replay and sends only the explicit documentation question', async () => {
+    const seen: string[] = [];
+    vi.stubGlobal('fetch', async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.startsWith('https://context7.com/')) { seen.push(url); return Response.json({ codeSnippets: [], infoSnippets: [] }); }
+      if (url.startsWith('https://api.groq.com/')) return new Response(`data: ${JSON.stringify({ choices: [{ delta: { content: 'Hello from a synthetic chat response.' }, finish_reason: 'stop' }] })}\n\ndata: [DONE]\n\n`);
+      return realFetch(input, init);
+    });
+    const data = { requestId: crypto.randomUUID(), connection: { provider: 'groq', model: 'test/chat', key: 'synthetic-test-key', authorized: true },
+      messages: [{ role: 'user', text: 'Private synthetic conversation.' }], documentation: { query: 'React useState', library: 'React' } };
+    const response = await request('/chat', 'POST', cookieA, data);
+    expect(response.status).toBe(200); expect(await response.text()).toContain('"type":"done"');
+    expect(seen).toHaveLength(1); expect(seen[0]).not.toContain('Private');
+    expect((await request('/chat', 'POST', cookieA, data)).status).toBe(429);
+    expect((await request('/chat', 'POST', '', data)).status).toBe(401); vi.unstubAllGlobals();
+  }, 30000);
+
 });

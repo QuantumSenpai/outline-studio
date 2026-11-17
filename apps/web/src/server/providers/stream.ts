@@ -6,11 +6,13 @@ import { ApiError } from '../errors';
 const chunkSchema = z.object({ choices: z.array(z.object({ delta: z.object({ content: z.string().nullable().optional() }),
   finish_reason: z.string().nullable().optional() })).optional(), error: z.unknown().optional() });
 export async function streamModel(connection: Connection, system: string, prompt: string,
-  signal: AbortSignal, onText: (text: string) => void) {
+  signal: AbortSignal, onText: (text: string) => void, options: { maxTokens?: number; maxChars?: number; images?: string[] } = {}) {
+  const images = options.images ?? [];
+  const userContent = images.length ? [{ type: 'text', text: prompt }, ...images.map(url => ({ type: 'image_url', image_url: { url } }))] : prompt;
   const response = await fetch(endpoint(connection, '/chat/completions'), { method: 'POST',
     headers: headers(connection), signal, redirect: 'error', cache: 'no-store',
-    body: JSON.stringify({ model: connection.model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-      stream: true, max_tokens: 6500, ...(connection.provider === 'openrouter' ? { provider: { allow_fallbacks: false } } : {}) }),
+    body: JSON.stringify({ model: connection.model, messages: [{ role: 'system', content: system }, { role: 'user', content: userContent }],
+      stream: true, max_tokens: options.maxTokens ?? 6500, ...(connection.provider === 'openrouter' ? { provider: { allow_fallbacks: false } } : {}) }),
   });
   if (!response.ok) throw await upstreamError(response);
   const reader = response.body?.getReader();
@@ -32,7 +34,7 @@ export async function streamModel(connection: Connection, system: string, prompt
     const text = choice?.delta.content;
     if (text) {
       output += text;
-      if (output.length > 90000) throw new ApiError('invalid_output', 'Model output exceeded the stage size limit.', 502);
+      if (output.length > (options.maxChars ?? 90000)) throw new ApiError('invalid_output', 'Model output exceeded the stage size limit.', 502);
       onText(text);
     }
   }

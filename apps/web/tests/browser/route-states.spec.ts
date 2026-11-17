@@ -83,7 +83,7 @@ test('failed planner retry recovers through the actual task control', async ({ p
   await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
   await connectProvider(page);
   await page.getByRole('textbox', { name: 'Your document request' }).fill('Synthetic planner request for retry verification.');
-  await page.getByRole('button', { name: 'Send message' }).click();
+  await page.getByRole('button', { name: 'Create document', exact: true }).click(); await page.getByRole('button', { name: 'Send message' }).click();
   await page.getByRole('tab', { name: 'Planner', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Retry task', exact: true })).toBeEnabled();
   await mockProvider(page);

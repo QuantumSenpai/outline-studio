@@ -47,5 +47,5 @@ export async function deleteProject(id: string) {
   });
 }
 export async function createProject(style: Parameters<typeof newCheckpoint>[0]) {
-  const checkpoint = newCheckpoint(style); await saveProject(checkpoint); return checkpoint;
+  const checkpoint = newCheckpoint(style); checkpoint.mode = 'document'; await saveProject(checkpoint); return checkpoint;
 }

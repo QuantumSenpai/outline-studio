@@ -6,7 +6,7 @@ export function projectMarkdown(checkpoint: Checkpoint) {
   const lines = [`# ${document?.title ?? checkpoint.outline?.title ?? 'Outline Studio project'}`, '',
     checkpoint.review ? 'User-reviewed structured revision. Verify factual accuracy and citations.' : 'Draft snapshot. Review is incomplete.', '',
     ...[checkpoint.settings.student, checkpoint.settings.roll, checkpoint.settings.course, checkpoint.settings.department, checkpoint.settings.university, checkpoint.settings.supervisor, checkpoint.settings.date].filter(Boolean), ''];
-  if (!document) return [...lines, '## Brief', checkpoint.brief || checkpoint.composer, '', '## Outline', ...(checkpoint.outline?.sections ?? []).map(heading => `- ${heading}`)].join('\n');
+  if (!document) return [...lines, '## Conversation', ...checkpoint.messages.flatMap(message => [`### ${message.role === 'user' ? 'You' : 'Outline Studio'}`, message.text, ...(message.documentation?.sources.map(source => `${source.title}: ${source.url}`) ?? []), '']), '## Brief', checkpoint.brief || checkpoint.composer, '', '## Outline', ...(checkpoint.outline?.sections ?? []).map(heading => `- ${heading}`)].join('\n');
   if (document.abstract) lines.push(`## ${abstractLabel(checkpoint.settings.style)}`, document.abstract, '');
   if (document.keywords.length) lines.push(`Keywords: ${document.keywords.join(', ')}`, '');
   const cell = (text: string) => text.replace(/\|/g, '\\|').replace(/\n/g, ' ');

@@ -2,7 +2,9 @@
 
 Use Node 22+ and pnpm 10.28.2. Run `pnpm install --frozen-lockfile`, copy `.env.example` to `.env.local`, then `pnpm dev`. Never commit real environment files. Frontend and API share one Next.js app on http://127.0.0.1:3000. No separate worker, Render service or Cloudflare deployment is required.
 
-Environment names: `DATABASE_URL` (Neon connection), optional `DATABASE_URL_UNPOOLED` (takes precedence for runtime and migrations), `SESSION_SECRET` (random 32+ characters), `APP_ORIGIN` (exact public origin), `NEXT_PUBLIC_SITE_URL` (canonical public URL). Database credentials are server-only. Provider keys come through the UI, never NEXT_PUBLIC variables.
+Environment names: `DATABASE_URL` (Neon connection), optional `DATABASE_URL_UNPOOLED` (takes precedence for runtime and migrations), `SESSION_SECRET` (random 32+ characters), `APP_ORIGIN` (exact public origin), `NEXT_PUBLIC_SITE_URL` (canonical public URL). Database credentials are server-only. Provider keys come through the UI, never NEXT_PUBLIC variables. Optional CONTEXT7_API_KEY is server-only; anonymous documentation lookups have low limits, and failures are disclosed without disabling general chat.
+
+Chat attachments are bounded to 6 files and 4 MB each; the `/api/chat` body limit is 9 MB. Markdown/DOCX text is parsed in the browser, PDF text on the server with the pinned `pdf-parse` dependency, and images are resized client-side before upload. Raw bytes are never persisted locally. Vision image parts are opt-in and require a vision-capable provider model.
 
 ## Database
 

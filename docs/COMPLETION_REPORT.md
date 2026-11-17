@@ -1,6 +1,6 @@
 # Outline Studio completion report
 
-Subsequent composer fix and explicitly authorized live Groq generation: [COMPOSER_API_REPORT.md](COMPOSER_API_REPORT.md). Historical no-live statements below refer to the earlier audit. Context7 became available for that follow-up.
+Subsequent composer fix and explicitly authorized live Groq generation: [COMPOSER_API_REPORT.md](COMPOSER_API_REPORT.md). The later general chat assistant and bounded attachment feature is [CHAT_ASSISTANT.md](CHAT_ASSISTANT.md). Historical no-live statements below refer to the earlier audit. Context7 became available for that follow-up.
 
 Date: 17 November 2026. Subsequent user-authorized production deployment is recorded in [DEPLOYMENT_REPORT.md](DEPLOYMENT_REPORT.md); it supersedes the historical no-deployment statements below. This report describes implemented work and observed checks. It does not certify an unrestricted production launch or every browser/provider. Latest user direction: keep the assignment/prompting workspace simple, preserve the working layout and make version history safe.
 

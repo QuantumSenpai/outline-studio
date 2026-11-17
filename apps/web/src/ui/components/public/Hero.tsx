@@ -18,7 +18,7 @@ export function Hero() {
         </h1>
         <p className="hero-description">Outline Studio turns one brief into coordinated reports, slides and diagrams—with AI coworkers you can direct.</p>
         <div className="hero-cta">
-          <Button asChild><Link href="/workspace">Start a document <ArrowUpRight size={18} /></Link></Button>
+          <Button asChild><Link href="/workspace?style=academic">Start a document <ArrowUpRight size={18} /></Link></Button>
           <Button asChild variant="outline"><Link href="/how-it-works">See how it works <ArrowRight size={16} /></Link></Button>
         </div>
         <HeroProvider />

@@ -144,3 +144,8 @@
 - Commit 6461b38 promoted to outline-flow.vercel.app as dpl_5s2XgAFHFX24WhgFMW5xVW2gUTE7 after successful Vercel build/health verification.
 - Public 390/1440 px checks passed Hii via Enter, short text via Send message and Shift+Enter newline. Zero model/validation calls during greeting tests, no page runtime errors and no horizontal overflow. Full authorized Groq generation had already passed once on the unchanged backend.
 - COMPOSER_API_REPORT.md records root cause, exact live scope, checks and limitations without credentials. No Git push. Unrelated ignore-file work remains untouched.
+
+## General chat assistant and attachments — 2026-11-17
+- Completed the in-progress chat mode as a general streaming assistant with assignment help, quick-action prompts, bounded recent context and Context7 documentation disclosure. Create document remains the separate gated export workflow.
+- Added up to 6 bounded attachments per message (4 MB each): image/file/camera, Markdown/TXT, PDF and DOCX. Browser extracts Markdown/DOCX text and resizes images; the same-origin server extracts PDF text with a pinned parser; images are forwarded as model image parts only when enabled and supported. Only names and extracted text are saved locally; raw bytes are never persisted.
+- Verification: typecheck, lint/source rules, 49 unit/contract tests, optimized build and 31/31 local production Chromium tests passed. Scope and unverified paths are in CHAT_ASSISTANT.md; no push/deploy in this continuation.

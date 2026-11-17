@@ -12,6 +12,7 @@ import { useProviders } from '../stores/providerStore';
 import { useCheckpoint } from '../hooks/useCheckpoint';
 import { usePipeline } from '../hooks/usePipeline';
 import { useOnline } from '../hooks/useOnline';
+import { useChat } from '../hooks/useChat';
 import { Conversation } from '../components/workspace/Conversation';
 import { TaskRail } from '../components/workspace/TaskRail';
 import { CoworkerPanel } from '../components/workspace/CoworkerPanel';
@@ -28,7 +29,8 @@ const tabs = [['conversation','Conversation'],['document','Document'],['planner'
 
 export function WorkspaceScreen({ style, projectId, fresh = false }: { style: StyleId; projectId?: string; fresh?: boolean }) {
   const loaded = useCheckpoint(style, projectId, fresh);
-  const store = useWorkspace(); const providers = useProviders(); const pipeline = usePipeline(); const online = useOnline();
+  const chat = useChat(); const store = useWorkspace(); const providers = useProviders(); const pipeline = usePipeline(); const online = useOnline();
+  const busy = pipeline.busy || chat.busy;
   const [providerOpen, setProviderOpen] = useState(false); const [styleOpen, setStyleOpen] = useState(false); const [dataOpen, setDataOpen] = useState(false);
   if (!loaded || !store.hydrated || !store.checkpoint) return <main id="main" className="page-container empty-page" aria-busy="true"><h1>Opening your studio.</h1><p>Loading local drafts and checkpoints…</p></main>;
   const { checkpoint, activeTab, setTab } = store;
@@ -42,21 +44,23 @@ export function WorkspaceScreen({ style, projectId, fresh = false }: { style: St
   }
   const stage = stageNameSchema.safeParse(activeTab);
   return <main id="main" className="workspace-shell"><header className="workspace-toolbar"><div><h1>Workspace</h1><Link className="text-link small" href="/projects">Local projects</Link><p>{checkpoint.outline?.title || 'A fresh page, a shared direction.'}</p><span role="status" className="small muted">{store.saveState === 'saved' ? 'Saved on this device' : store.saveState === 'saving' ? 'Saving locally…' : store.saveState === 'failed' ? 'Not saved · export a backup' : 'Opening local storage…'}</span></div>
-    <div className="workspace-tools"><button aria-label={`Document style settings · ${styles.find(s => s.id === checkpoint.settings.style)?.name}`} onClick={() => setStyleOpen(true)} disabled={pipeline.busy}><Settings2 size={16} /><span>{styles.find(s => s.id === checkpoint.settings.style)?.name}</span><small className="toolbar-short-label">Style</small></button>
-      <button aria-label={providers.primary ? `${providers.primary} connected` : 'Connect AI'} onClick={() => setProviderOpen(true)} disabled={pipeline.busy}><KeyRound size={16} /><span>{providers.primary ? `${providers.primary} connected` : 'Connect AI'}</span><small className="toolbar-short-label">{providers.primary ?? 'AI'}</small></button>
-      <button aria-label="Data controls" onClick={() => setDataOpen(true)} disabled={pipeline.busy}><Database size={16} /><span>Data controls</span><small className="toolbar-short-label">Data</small></button></div></header>
+    <div className="workspace-tools"><button aria-label={`Document style settings · ${styles.find(s => s.id === checkpoint.settings.style)?.name}`} onClick={() => setStyleOpen(true)} disabled={busy}><Settings2 size={16} /><span>{styles.find(s => s.id === checkpoint.settings.style)?.name}</span><small className="toolbar-short-label">Style</small></button>
+      <button aria-label={providers.primary ? `${providers.primary} connected` : 'Connect AI'} onClick={() => setProviderOpen(true)} disabled={busy}><KeyRound size={16} /><span>{providers.primary ? `${providers.primary} connected` : 'Connect AI'}</span><small className="toolbar-short-label">{providers.primary ?? 'AI'}</small></button>
+      <button aria-label="Data controls" onClick={() => setDataOpen(true)} disabled={busy}><Database size={16} /><span>Data controls</span><small className="toolbar-short-label">Data</small></button></div></header>
     {!online && <div className="workspace-network" role="status"><WifiOff size={16} /> Offline · local review and editing remain available. Reconnect, then retry unfinished stages.</div>}
     {store.persistenceError && <p className="notice error" role="alert">{store.persistenceError}</p>}
-    <div className="workspace-body"><TaskRail busy={pipeline.busy} /><Tabs.Root className="workspace-main" value={activeTab} onValueChange={setTab}>
+    <div className="workspace-body"><TaskRail busy={busy} /><Tabs.Root className="workspace-main" value={activeTab} onValueChange={setTab}>
       <Tabs.List aria-label="Workspace views" className="workspace-tabs">{tabs.map(([value,label]) => <Tabs.Trigger value={value} key={value}>{label}</Tabs.Trigger>)}</Tabs.List>
-      <Tabs.Content value="conversation" className="workspace-tab-content"><Conversation busy={pipeline.busy} onPlan={() => requireProvider(() => void pipeline.plan().catch(error => store.message(messageFrom(error))))}
-        onCancel={pipeline.cancel} onAccept={() => requireProvider(pipeline.accept)} onReview={() => requireProvider(() => pipeline.send({ type: 'REVIEW' }))}
+      <Tabs.Content value="conversation" className="workspace-tab-content"><Conversation busy={busy} onPlan={() => requireProvider(() => void pipeline.plan().catch(error => store.message(messageFrom(error))))}
+        onChat={(documentation, retry) => requireProvider(() => void chat.send(documentation, retry))} chatPartial={chat.partial} chatError={chat.error}
+        attachments={chat.attachments} onAddFiles={chat.addFiles} onRemoveAttachment={chat.removeAttachment} useImages={chat.useImages} onUseImages={chat.setUseImages}
+        onCancel={chat.busy ? chat.cancel : pipeline.cancel} onAccept={() => requireProvider(pipeline.accept)} onReview={() => requireProvider(() => pipeline.send({ type: 'REVIEW' }))}
         onResume={() => requireProvider(() => pipeline.send({ type: 'COMPOSE' }))} openProvider={() => setProviderOpen(true)} /></Tabs.Content>
-      <Tabs.Content value="document" className="workspace-tab-content scroll-panel"><DocumentView busy={pipeline.busy} /></Tabs.Content>
-      {stage.success && <Tabs.Content value={stage.data} className="workspace-tab-content scroll-panel"><CoworkerPanel stage={stage.data} busy={pipeline.busy} onRetry={retry} onCancel={pipeline.cancel} /></Tabs.Content>}
-      <Tabs.Content value="researcher" className="workspace-tab-content scroll-panel"><ResearchPanel busy={pipeline.busy} /></Tabs.Content>
+      <Tabs.Content value="document" className="workspace-tab-content scroll-panel"><DocumentView busy={busy} /></Tabs.Content>
+      {stage.success && <Tabs.Content value={stage.data} className="workspace-tab-content scroll-panel"><CoworkerPanel stage={stage.data} busy={busy} onRetry={retry} onCancel={chat.busy ? chat.cancel : pipeline.cancel} /></Tabs.Content>}
+      <Tabs.Content value="researcher" className="workspace-tab-content scroll-panel"><ResearchPanel busy={busy} /></Tabs.Content>
       <Tabs.Content value="history" className="workspace-tab-content scroll-panel"><VersionHistory /></Tabs.Content>
-      <Tabs.Content value="exporter" className="workspace-tab-content scroll-panel"><ExportPanel busy={pipeline.busy} /></Tabs.Content>
+      <Tabs.Content value="exporter" className="workspace-tab-content scroll-panel"><ExportPanel busy={busy} /></Tabs.Content>
     </Tabs.Root></div>
     {activeTab !== 'conversation' && <button className="mobile-return" onClick={() => setTab('conversation')}><ArrowLeft size={16} /> Main conversation</button>}
     <ProviderSetup open={providerOpen} onOpenChange={setProviderOpen} /><StyleSettings open={styleOpen} onOpenChange={setStyleOpen} /><DataControls open={dataOpen} onOpenChange={setDataOpen} />

@@ -46,3 +46,9 @@ User later explicitly requested deploy/domain change. Source cfb32d0 is live at 
 ## Current composer/API follow-up
 
 6461b38 fixes short greeting send, Enter/Shift+Enter and preserved intake, with 41 unit/contract and 28 local browser tests passing. User explicitly supplied/authorized a Groq key test: one actual gpt-oss-20b planner/writer/diagram/reviewer journey and DOCX passed, test metadata cleaned up, no key in source/logs/report. Current production is dpl_5s2XgAFHFX24WhgFMW5xVW2gUTE7 at outline-flow.vercel.app. Hosted 390/1440 greeting checks passed with no provider calls/errors. Context7 became available and Groq streaming/auth docs were queried. Earlier no-live/Context7-unavailable statements are historical. See COMPOSER_API_REPORT.md. No Git push; rotate the chat-shared key through the owner’s console after testing.
+
+## Current chat assistant expansion
+
+User then asked to complete the in-progress chat work as a general ChatGPT-style assignment assistant with image/Markdown/PDF/DOCX/camera uploads. Implemented and verified locally, with no push or deployment. Scope, limits and disclosures: CHAT_ASSISTANT.md. Boundary remains: prompt-level help, no code execution or autonomous document editing; exportable deliverables still use Create document.
+
+Verification: typecheck, lint/source rules, 49 unit/contract tests (including real PDF text extraction and attachment bounds), optimized build and the full local production Chromium suite (31/31 passed, 59.4 s, port 3016) all passed. Browser coverage includes attachment chips, camera input, context retention, retry/cancellation and all existing journeys. Duplicate root `.gitignore` line and untracked `apps/web/.gitignore` from the earlier deployment work remain intentionally unstaged.

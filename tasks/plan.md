@@ -17,3 +17,16 @@ Design: printed annual direction, seed 760955009. The accepted outline becomes t
 The user's completion request supersedes the historical no-commit instruction above and is the current acceptance specification. Preserve the existing stack and working features. No push or deploy. Detailed evidence, dependencies and acceptance checks are tracked in docs/COMPLETION_CHECKLIST.md. Extend this existing plan rather than replacing unfinished historical records.
 
 Implement sequential vertical slices: local project storage and safe migration; project library/autosave; snapshots/history/restore; safe project ZIP and retained files; export/template gaps; backend/provider/research guards; final security/performance/viewer verification and documentation. Commit verified milestones. Unavailable Context7/live credentials/isolated DB/viewers must be recorded, never treated as verified. Do not allow those external limits to block independent local work.
+
+## Chat assistant expansion — 2026-11-17 (current)
+
+User direction: make chat a general assignment-capable assistant (ChatGPT-like), add uploads for images, Markdown, PDF, DOCX and camera capture, with strong limits and honest disclosures.
+
+Architecture decisions:
+- Keep one same-origin Hono `/api/chat` route; attachments travel as bounded base64/text inside the strict chat schema, no new cloud storage.
+- Extract Markdown/DOCX text in the browser (JSZip already present); extract PDF text on the server with `pdf-parse` (pinned); downscale images client-side before upload.
+- Persist only attachment metadata/extracted text locally; never persist raw base64 in IndexedDB or ZIP.
+- Images are passed as model image parts only when the user opts in; vision capability is model-dependent and disclosed.
+- Assignment help is prompt-level (step-by-step, show working, format answers), not a new autonomous agent loop; exportable deliverables still use Create document.
+
+Slices: (1) schema + extraction utilities; (2) server prompt/PDF/vision plumbing; (3) attachment picker + chat integration; (4) tests, docs, verification. Checkpoints after each slice: lint, typecheck, focused tests.
