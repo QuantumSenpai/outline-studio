@@ -9,7 +9,7 @@ test('accepted outline, coworkers, manual revision, review, reload and real down
   const stages=await mockProvider(page);
   await page.goto('/workspace'); await page.getByRole('button',{name:'Reject optional cookies',exact:true}).click();
   await page.getByRole('textbox',{name:'Your document request'}).fill('Compare TCP and UDP for a report, slides and a labelled diagram.');
-  await connectProvider(page); await page.getByRole('button',{name:'Create an outline'}).click();
+  await connectProvider(page); await page.getByRole('button',{name:'Send message'}).click();
   await expect(page.getByText('Your outline, for approval')).toBeVisible(); expect(stages).toEqual(['planner:groq']);
   await page.getByRole('button',{name:'Accept outline & start coworkers'}).click();
   await expect(page.getByRole('button',{name:'Review against requirements'})).toBeVisible();
@@ -74,7 +74,7 @@ test('explicit fallback order switches and stops when exhausted',async({page})=>
   await connectProvider(page,'groq'); await connectProvider(page,'gemini');
   await page.getByRole('button',{name:'groq connected'}).click();
   await page.getByRole('checkbox',{name:/Enable automatic switching/}).check(); await page.getByRole('button',{name:'Close dialog'}).click();
-  await page.getByRole('button',{name:'Create an outline'}).click();
+  await page.getByRole('button',{name:'Send message'}).click();
   await expect(page.getByText(/Enabled fallback order exhausted/)).toBeVisible(); expect(stages).toEqual(['planner:groq','planner:gemini']);
   await expect(page.getByText(/Switching planner to your enabled gemini/)).toBeVisible();
 });
@@ -82,7 +82,7 @@ test('cancellation, interrupted reload and offline states preserve the brief',as
   await mockProvider(page,'slow'); await page.goto('/workspace');
   await page.getByRole('button',{name:'Reject optional cookies',exact:true}).click();
   await connectProvider(page); await page.getByRole('textbox',{name:'Your document request'}).fill('A synthetic request whose stage will be cancelled.');
-  await page.getByRole('button',{name:'Create an outline'}).click(); await page.getByRole('button',{name:'Stop',exact:true}).click();
+  await page.getByRole('button',{name:'Send message'}).click(); await page.getByRole('button',{name:'Stop',exact:true}).click();
   await page.waitForTimeout(2200); await expect(page.getByText('Your outline, for approval')).toHaveCount(0);
   await page.reload(); await expect(page.getByText('A synthetic request whose stage will be cancelled.')).toBeVisible();
   await context.setOffline(true); await expect(page.getByText(/Offline · local review/)).toBeVisible(); await context.setOffline(false);

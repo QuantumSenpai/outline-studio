@@ -134,3 +134,8 @@
 - Deployed and promoted dpl_5bVa6if91BRpUNjKLiyj1ws9abMh. New canonical address https://outline-flow.vercel.app; production APP_ORIGIN/NEXT_PUBLIC_SITE_URL match it. First-choice outline-studio.vercel.app was taken.
 - Hosted Chromium checks at 390/1440 passed for six routes and provider UI; actual secure guest session, scoped DB metadata and cleanup returned 200. No page runtime errors; no AI quota used. Legacy workspace remains accessible for local project export because IndexedDB cannot move across domains automatically.
 - Detailed release/limitations/rollback notes: DEPLOYMENT_REPORT.md. No Git push or production schema reset was performed.
+
+## Composer send and authorized live Groq verification
+- Root cause: outline-only composer disabled inputs shorter than 10 characters, had no greeting/clarification path, and lacked Enter-to-send. The screenshot input was eight characters. Added Send message, Enter/Shift+Enter/IME handling, local greeting/intake guidance with no provider quota, retained initial conversation on first planning and removed empty Latest messages affordance.
+- Supplied Groq credential passed actual UI validation and one complete openai/gpt-oss-20b planner/writer/diagram/reviewer journey on production, followed by a real DOCX download. No page errors; test-session server metadata cleaned up. No provider adapter failure was reproduced. Key never added to source/tests/logs/screenshots/report.
+- Checks: 41 unit/contract tests and 28 production-local browser tests passed; lint/source rules, strict TypeScript, optimized build and visual checks at 390/1440 passed. Details and scope: COMPOSER_API_REPORT.md.

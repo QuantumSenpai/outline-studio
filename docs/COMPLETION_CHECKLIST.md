@@ -24,7 +24,7 @@ Updated 17 November 2026. Scope is the current completion request and the simple
 | Provider adapters | Four allowlisted mocked list/SSE contracts | Live inference authorization/accounts | Do not equate list access to generation | Implemented |
 | Vault | Encryption/wrong passphrase/lock race/browser recovery | Physical browser compromise outside guarantees | Failed unlock preserves encrypted records | Verified |
 | Bounded fallback | Eligibility/cooldown/error contracts and exhaustion browser test | Live quota/account conditions | Only enabled authorized connections, at most 3 attempts | Verified |
-| Live AI generation | No live inference by this agent | Explicit minimal provider/account tests | Record actual model/date/output/cost | Blocked |
+| Live AI generation | One authorized Groq gpt-oss-20b outline/writer/diagram/review and DOCX journey passed | Other providers/models and quota conditions unverified | COMPOSER_API_REPORT.md records the tested scope | Partial |
 | API boundaries | 8 real isolated DB/Hono tests; caps/deadlines/error IDs | Production runtime/config checks | Ownership/origin/replay/timeout safety | Verified |
 | Neon migrations/persistence | Isolated branch; concurrent immutable journal tests; CLI replay0 | Production baseline and retention operations | No production data reset; constraints/indexes | Verified |
 | DOCX/PDF/PPTX | Real downloads and 12 synthetic files; PDF pages/Quick Look previews | Full Word/PowerPoint pagination/slides | No content silently omitted; disclosed limitations | Partial |
@@ -45,3 +45,5 @@ Updated 17 November 2026. Scope is the current completion request and the simple
 ## Subsequent deployment evidence
 
 User authorized Vercel deployment after completion. Production release and domain are now verified for the hosted smoke scope in DEPLOYMENT_REPORT.md. The full local test suite, live AI inference, legal/operator completion and operational monitoring remain distinct; deployment does not mark those untested paths verified.
+
+Composer follow-up: short-message Send/Enter and preserved initial conversation are verified. Groq live coverage is now recorded in COMPOSER_API_REPORT.md; earlier no-live statements describe the prior completion audit. Context7 became available for this follow-up and was used for Groq docs.

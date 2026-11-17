@@ -22,11 +22,11 @@ export function usePipeline() {
     if (!checkpoint || busy || checkpoint.composer.trim().length < 10) return;
     if (checkpoint.revision >= 1000) throw new Error('Revision limit reached. Duplicate this project to continue.');
     await saveProject(checkpoint);
-    if (checkpoint.brief || checkpoint.document) await snapshotProject(checkpoint, 'Before new request');
+    if (checkpoint.brief || checkpoint.document || checkpoint.messages.length >= 198) await snapshotProject(checkpoint, 'Before new request');
     const next = newCheckpoint(checkpoint.settings.style);
     next.projectId = projectIdentity(checkpoint); next.revision = checkpoint.revision + 1;
     next.settings = checkpoint.settings; next.brief = checkpoint.composer.trim(); next.sources = checkpoint.sources;
-    next.messages = [{ id: crypto.randomUUID(), role: 'user', text: next.brief }];
+    next.messages = [...(checkpoint.brief || checkpoint.document || checkpoint.messages.length >= 198 ? [] : checkpoint.messages), { id: crypto.randomUUID(), role: 'user', text: next.brief }];
     store.hydrate(next);
     send({ type: 'PLAN' });
   }
