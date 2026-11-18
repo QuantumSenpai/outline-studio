@@ -17,7 +17,7 @@ export const useProviders = create<ProviderState>((set) => ({
   remove: provider => set(state => ({ connections: state.connections.filter(c => c.provider !== provider),
     primary: state.primary === provider ? state.connections.find(c => c.provider !== provider)?.provider ?? null : state.primary })),
   setPrimary: primary => set({ primary }), setFallback: fallback => set({ fallback }),
-  setModel: (provider, model) => set(state => ({ connections: state.connections.map(item => item.provider === provider ? { ...item, model } : item) })),
+  setModel: (provider, model) => set(state => ({ connections: state.connections.map(item => item.provider === provider ? { ...item, model, models: Array.from(new Set([...(item.models ?? []), model])) } : item) })),
   move: (provider, direction) => set(state => {
     const connections = [...state.connections]; const index = connections.findIndex(c => c.provider === provider);
     const target = index + direction;

@@ -13,6 +13,7 @@ import { api, ClientError, connectSession, messageFrom } from '@/lib/api';
 export function useChat() {
   const checkpoint = useWorkspace(state => state.checkpoint);
   const request = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [pending, setPending] = useState(false); const [partial, setPartial] = useState(''); const [error, setError] = useState('');
   const [attachments, setAttachments] = useState<ChatAttachment[]>([]); const [useImages, setUseImages] = useState(true); const [preparing, setPreparing] = useState(false);
   const cancel = useCallback(() => {
@@ -69,5 +70,6 @@ export function useChat() {
     } catch (failure) { if (request.current === controller) setError(messageFrom(failure)); }
     finally { if (request.current === controller) { request.current = null; setPending(false); setPartial(''); } }
   }
-  return { busy: pending, partial, error, send, cancel, attachments, addFiles, removeAttachment, useImages, setUseImages, preparing };
+  function setTextarea(el: HTMLTextAreaElement | null) { textareaRef.current = el; }
+  return { busy: pending, partial, error: error || '', send, cancel, attachments, addFiles, removeAttachment, useImages, setUseImages, preparing, setTextarea, setPartial, chatError: error };
 }

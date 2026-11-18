@@ -33,3 +33,4 @@ export type ChatAttachmentMeta = z.infer<typeof chatAttachmentMetaSchema>;
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
 export type ChatDocumentation = z.infer<typeof chatDocumentationSchema>;
 export type DocumentationQuery = z.infer<typeof documentationQuerySchema>;
+export type DocumentationSettings = DocumentationQuery & { enabled: boolean };
