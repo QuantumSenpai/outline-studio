@@ -137,7 +137,7 @@ export default function PlaygroundPage() {
         busy={chat.busy || pipeline.busy}
         docQuery={assistantMode ? { enabled: false, query: '', library: '' } : docQuery}
         setDocQuery={setDocQuery}
-        attachments={attachments}
+        onAddFiles={addFiles}
         chatError={chat.error}
         inputError={inputError}
         chat={chat}
