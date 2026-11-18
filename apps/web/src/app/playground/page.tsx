@@ -1,7 +1,6 @@
 'use client';
 
 import './playground.css';
-
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDown } from 'lucide-react';
 import { useWorkspace } from '@/ui/stores/workspaceStore';
@@ -34,6 +33,7 @@ export default function PlaygroundPage() {
   const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
   const [useImages] = useState(true);
   const [following, setFollowing] = useState(true);
+  const [assistantMode, setAssistantMode] = useState(false);
 
   function sendChat(retry = false) {
     const store = useWorkspace.getState(); const original = store.checkpoint;
@@ -123,22 +123,27 @@ export default function PlaygroundPage() {
       </button>}
     </div>
 
-    <PlaygroundAttachments attachments={attachments} onRemove={removeAttachment} />
-    <PlaygroundInput
-      checkpoint={checkpoint}
-      onSubmit={() => submit()}
-      onCancel={() => { chat.cancel(); pipeline.cancel(); }}
-      busy={chat.busy || pipeline.busy}
-      docQuery={docQuery}
-      setDocQuery={setDocQuery}
-      attachments={attachments}
-      chatError={chat.error}
-      inputError={inputError}
-      chat={chat}
-    />
+    <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+      <PlaygroundAttachments attachments={attachments} onRemove={removeAttachment} />
+      <div className="playground-mode-toggle">
+        <input type="checkbox" id="assistant-mode" checked={assistantMode} onChange={e => setAssistantMode(e.target.checked)} />
+        <span>Personal Assistant Mode</span>
+        <span style={{fontSize: '0.7rem', color: 'var(--muted)'}}>{assistantMode ? 'Simple, conversational' : 'With docs & attachments'}</span>
+      </div>
+      <PlaygroundInput
+        checkpoint={checkpoint}
+        onSubmit={() => submit()}
+        onCancel={() => { chat.cancel(); pipeline.cancel(); }}
+        busy={chat.busy || pipeline.busy}
+        docQuery={assistantMode ? { enabled: false, query: '', library: '' } : docQuery}
+        setDocQuery={setDocQuery}
+        attachments={attachments}
+        chatError={chat.error}
+        inputError={inputError}
+        chat={chat}
+      />
+    </div>
   </main>;
 }
 
-function fileToAttachment(file: File): Promise<ChatAttachment> {
-  return prepareAttachments([file]).then(arr => arr[0]);
-}
+const fileToAttachment = (file: File): Promise<ChatAttachment> => prepareAttachments([file]).then(arr => arr[0]);
