@@ -19,6 +19,7 @@ export function useCheckpoint(style: StyleId, projectId?: string, fresh = false)
       if (projectId && !row) throw new Error('This project no longer exists. Open Projects or import a backup.');
       const data = row && ('checkpoint' in row ? row.checkpoint : row.data);
       const next = data ? resumeCheckpoint(data) : newCheckpoint(style);
+      if (data && next.mode === 'document' && !next.outline && !next.document && !next.messages.length) next.mode = 'chat';
       if (!data && fresh) next.mode = 'document';
       await saveProject(next);
       if (!active) return;

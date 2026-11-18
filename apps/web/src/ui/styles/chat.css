@@ -43,7 +43,7 @@
 @keyframes progress { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
 @media (hover: hover) and (pointer: fine) {
   .conversation-mode button:hover, .suggestion-pills button:hover, .attachment-actions button:hover { background: #f1efea; }
-  .suggestion-pills button:hover, .attachment-actions button:hover { border-color: #b7b4c1; box-shadow: 0 3px 12px #1e20300d; }
+  .suggestion-pills button:hover, .attachment-actions button:hover { border-color: var(--line); }
 }
 @media (max-width: 768px) { .suggestion-pills { justify-content: flex-start; padding-inline: 4px; } .model-switcher span { display: none; } .model-switcher select { max-width: 150px; } }
 @media (prefers-reduced-motion: reduce) {
