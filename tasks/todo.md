@@ -32,4 +32,6 @@ Release exclusions remain explicit in docs/COMPLETION_REPORT.md: live inference,
 - [x] Bounded upload/control/content/footer motion with reduced-motion fallbacks
 - [x] Rotating suggestion pills and clearer diagram source/preview
 - [x] Tests/docs/verification: 51 unit, 32 browser, typecheck, lint, build
+- [x] Focused Chat cleanup: site chrome hidden, icon toolbar, one attachment button, compact composer
+- [x] Final cross-check: 51 unit, 32 browser, typecheck, lint, build all green
 - [ ] Commit locally; push/deploy only on explicit request

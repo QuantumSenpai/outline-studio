@@ -12,9 +12,13 @@ Kimi's playground was used only as a structural reference (centred composer, com
 - **Diagram quality.** GraphViz output now uses larger, spaced nodes, rounded process boxes, distinct shapes, heavier strokes, arrow sizing and a readable Helvetica/Arial type scale. The preview sits in a bordered white frame. The GraphViz string is covered by new unit assertions. No untrusted SVG capability was added.
 - **Button legibility.** All new controls set explicit text colours; no inherits from prose link styling. No button text is hidden by colour matching the background.
 
+## Focused Chat cleanup (follow-up)
+After visual review at 390 and 1440 px, Chat mode was simplified further: the site header/footer are hidden, the toolbar becomes a 48 px brand bar with icon-only tool buttons, the coworker rail is gone, tabs are compact, the file hint and character counter are removed, and attachments collapse behind a single `+` button with a small Upload/Camera menu. The composer has a shorter textarea and no extra explanatory note; suggestions scroll horizontally on phones. Save status remains available on desktop and tests keep their accessible labels.
+
 ## Verification
 - pnpm typecheck, pnpm lint/source rules, pnpm test (51 passed, 9 gated DB tests skipped), pnpm build.
 - Production local Chromium: 32/32 passed (including new model-switching and attachment tests), plus visual screenshots at 390 and 1440 px and footer-scroll check. No horizontal overflow.
+- The one earlier axe timeout under heavy parallel load passed on isolated rerun and in the final clean 32/32 run.
 - Not changed: provider keys/secrets, DB, deployment configuration, export formats and assignment gate behaviour.
 
 ## Notes

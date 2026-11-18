@@ -73,9 +73,9 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
         placeholder="Send a message or describe your document…" disabled={busy} onKeyDown={event => {
           if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); }
         }} />
-      <div className="composer-bottom"><span>Local drafts · {checkpoint.composer.length.toLocaleString()} / 12,000</span>{busy ? <Button type="button" variant="outline" onClick={onCancel}><Square size={14} /> Stop</Button>
+      <div className="composer-bottom">{checkpoint.mode === 'document' && <span>Local drafts · {checkpoint.composer.length.toLocaleString()} / 12,000</span>}{busy ? <Button type="button" variant="outline" onClick={onCancel}><Square size={14} /> Stop</Button>
         : <Button type="submit" disabled={!checkpoint.composer.trim() || checkpoint.messages.length >= 199 && (checkpoint.mode === 'chat' || Boolean(intakeReply(checkpoint.composer)))}>Send message<ArrowUp size={16} /></Button>}</div>
     </form>{checkpoint.mode === 'chat' && <SuggestionPills onSelect={text => patch({ composer: text })} disabled={busy} />}
-    <p className="composer-note">Enter to send · Shift+Enter for a new line. {checkpoint.mode === 'chat' ? 'Chat uses up to 20 recent messages within its context limit; the full transcript stays local.' : 'A detailed request creates an outline and archives an existing draft.'}</p>
+    {checkpoint.mode === 'document' && <p className="composer-note">Enter to send · Shift+Enter for a new line. A detailed request creates an outline and archives an existing draft.</p>}
   </div>;
 }
