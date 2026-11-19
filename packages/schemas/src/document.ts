@@ -17,7 +17,7 @@ export const sectionSchema = z.object({
 export const diagramSchema = z.object({
   caption: z.string().trim().min(1).max(240),
   nodes: z.array(z.object({ id: z.string().regex(/^[a-zA-Z][a-zA-Z0-9]{0,15}$/),
-    label: z.string().trim().min(1).max(100), shape: z.enum(['process', 'decision', 'start', 'data']) })).min(2).max(12),
+    label: z.string().trim().min(1).max(100), shape: z.enum(['process', 'decision', 'start', 'data', 'rectangle', 'ellipse', 'diamond', 'parallelogram', 'cylinder', 'document']) })).min(2).max(12),
   edges: z.array(z.object({ from: z.string(), to: z.string(), label: z.string().max(60).default('') })).min(1).max(18),
 }).strict().superRefine((d, ctx) => {
   const ids = new Set(d.nodes.map(n => n.id));

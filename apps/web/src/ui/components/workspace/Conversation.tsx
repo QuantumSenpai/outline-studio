@@ -14,8 +14,8 @@ import { ModelSwitcher } from './ModelSwitcher';
 import { SuggestionPills } from './SuggestionPills';
 import { ChatText } from './ChatText';
 
-export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onResume, openProvider, onChat, chatPartial, chatError, attachments, onAddFiles, onRemoveAttachment, useImages, onUseImages, preparing }:
-  { busy: boolean; onPlan: () => void; onCancel: () => void; onAccept: () => void; onReview: () => void; onResume: () => void; openProvider: () => void; onChat: (documentation?: DocumentationQuery, retry?: boolean) => void; chatPartial: string; chatError: string; attachments: ChatAttachment[]; onAddFiles: (files: File[]) => void; onRemoveAttachment: (id: string) => void; useImages: boolean; onUseImages: (value: boolean) => void; preparing: boolean }) {
+export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onResume, openProvider, onChat, chatPartial, chatError, attachments, onAddFiles, onRemoveAttachment, useImages, onUseImages, preparing, chat }:
+  { busy: boolean; onPlan: () => void; onCancel: () => void; onAccept: () => void; onReview: () => void; onResume: () => void; openProvider: () => void; onChat: (documentation?: DocumentationQuery, retry?: boolean) => void; chatPartial: string; chatError: string; attachments: ChatAttachment[]; onAddFiles: (files: File[]) => void; onRemoveAttachment: (id: string) => void; useImages: boolean; onUseImages: (value: boolean) => void; preparing: boolean; chat: ReturnType<typeof import('@/ui/hooks/useChat').useChat> }) {
   const { checkpoint, patch, setTab, message } = useWorkspace();
   const [documentation, setDocumentation] = useState<DocumentationSettings>({ enabled: false, query: '', library: '' });
   const [inputError, setInputError] = useState('');
@@ -72,7 +72,7 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
       <textarea id="brief-composer" value={checkpoint.composer} onChange={e => patch({ composer: e.target.value })} rows={3} maxLength={12000}
         placeholder="Send a message or describe your document…" disabled={busy} onKeyDown={event => {
           if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); }
-        }} />
+        }} ref={el => chat?.setTextarea?.(el)} autoFocus />
       <div className="composer-bottom">{checkpoint.mode === 'document' && <span>Local drafts · {checkpoint.composer.length.toLocaleString()} / 12,000</span>}{busy ? <Button type="button" variant="outline" onClick={onCancel}><Square size={14} /> Stop</Button>
         : <Button type="submit" disabled={!checkpoint.composer.trim() || checkpoint.messages.length >= 199 && (checkpoint.mode === 'chat' || Boolean(intakeReply(checkpoint.composer)))}>Send message<ArrowUp size={16} /></Button>}</div>
     </form>{checkpoint.mode === 'chat' && <SuggestionPills onSelect={text => patch({ composer: text })} disabled={busy} />}

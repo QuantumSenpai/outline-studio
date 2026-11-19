@@ -63,7 +63,7 @@ export function WorkspaceScreen({ style, projectId, fresh = false }: { style: St
         onChat={(documentation, retry) => requireProvider(() => void chat.send(documentation, retry))} chatPartial={chat.partial} chatError={chat.error}
         attachments={chat.attachments} onAddFiles={chat.addFiles} onRemoveAttachment={chat.removeAttachment} useImages={chat.useImages} onUseImages={chat.setUseImages} preparing={chat.preparing}
         onCancel={chat.busy ? chat.cancel : pipeline.cancel} onAccept={() => requireProvider(pipeline.accept)} onReview={() => requireProvider(() => pipeline.send({ type: 'REVIEW' }))}
-        onResume={() => requireProvider(() => pipeline.send({ type: 'COMPOSE' }))} openProvider={() => setProviderOpen(true)} /></Tabs.Content>
+        onResume={() => requireProvider(() => pipeline.send({ type: 'COMPOSE' }))} openProvider={() => setProviderOpen(true)} chat={chat} /></Tabs.Content>
       <Tabs.Content value="document" className="workspace-tab-content scroll-panel"><DocumentView busy={busy} /></Tabs.Content>
       {stage.success && <Tabs.Content value={stage.data} className="workspace-tab-content scroll-panel"><CoworkerPanel stage={stage.data} busy={busy} onRetry={retry} onCancel={chat.busy ? chat.cancel : pipeline.cancel} /></Tabs.Content>}
       <Tabs.Content value="researcher" className="workspace-tab-content scroll-panel"><ResearchPanel busy={busy} /></Tabs.Content>
