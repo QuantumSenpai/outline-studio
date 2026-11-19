@@ -10,7 +10,7 @@ import { attachmentMeta, prepareAttachments } from '@/domain/chat/attachments';
 import { readChatStream } from '@/adapters/providers/readChatStream';
 import { api, ClientError, connectSession, messageFrom } from '@/lib/api';
 
-export function useChat() {
+export function useChat({ attachmentsEnabled = true }: { attachmentsEnabled?: boolean } = {}) {
   const checkpoint = useWorkspace(state => state.checkpoint);
   const request = useRef<AbortController | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -23,6 +23,8 @@ export function useChat() {
   }, []);
   useEffect(() => () => cancel(), [checkpoint?.runId, checkpoint?.revision, cancel]);
   async function addFiles(files: File[]) {
+    if (!files.length || preparing || pending) return;
+    if (attachments.length + files.length > 6) { setError('Attach up to six files at a time.'); return; }
     setPreparing(true);
     try { const prepared = await prepareAttachments(files); setAttachments(current => [...current, ...prepared].slice(0, 6)); setError(''); }
     catch (failure) { setError(messageFrom(failure)); }
@@ -35,7 +37,8 @@ export function useChat() {
     const provider = useProviders.getState(); const connections = eligibleConnections(provider.connections, provider.primary, provider.fallback, provider.cooldowns).slice(0, 3);
     if (!connections.length) { setError('Connect an authorized provider before chatting.'); return; }
     if (original.messages.length + (retry ? 1 : 2) > 200) { setError('This conversation is full. Export it or create a new project to continue.'); return; }
-    const metas = attachments.map(attachmentMeta);
+    const sentAttachments = attachmentsEnabled ? attachments : [];
+    const metas = sentAttachments.map(attachmentMeta);
     const messages = retry ? original.messages : [...original.messages, { id: crypto.randomUUID(), role: 'user' as const, text: original.composer.trim(), attachments: metas }];
     if (messages.at(-1)?.role !== 'user') return;
     const controller = new AbortController(); request.current = controller; setPending(true); setError(''); setPartial('');
@@ -51,7 +54,7 @@ export function useChat() {
         try {
           const input = chatRequestSchema.parse({ requestId: crypto.randomUUID(), connection: { provider: connection.provider, model: connection.model, key: connection.key, authorized: true },
             messages: chatHistory(messages), documentation, document: original.document,
-            attachments: useImages ? attachments : attachments.filter(item => item.kind !== 'image') });
+            attachments: useImages ? sentAttachments : sentAttachments.filter(item => item.kind !== 'image') });
           const response = await api('/chat', input, signal); let at = 0;
           const result = await readChatStream(response, input.requestId, text => {
             if (current() && performance.now() - at > 80) { at = performance.now(); setPartial(text); }

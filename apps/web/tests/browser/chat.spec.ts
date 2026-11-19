@@ -13,7 +13,7 @@ test('general chat retains context and sources without starting document coworke
   await expect(page.getByRole('button', { name: 'Chat', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await connectProvider(page);
   const composer = page.getByRole('textbox', { name: 'Your document request' });
-  await page.getByText('Context7 documentation', { exact: true }).click();
+  await page.getByText('Look up documentation', { exact: true }).click();
   await page.getByRole('checkbox', { name: 'Use current software documentation for this reply' }).check();
   await page.getByLabel('Documentation question', { exact: true }).fill('How does React useState work?');
   await page.getByLabel('Library or version (optional)', { exact: true }).fill('React');
@@ -75,8 +75,10 @@ test('chat accepts a Markdown file and exposes camera capture', async ({ page })
 });
 
 test('the active model can be switched from the composer', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  const longModel = 'test/' + 'long-model-name'.repeat(10);
   await page.route('**/api/session', route => route.fulfill({ json: { connected: true } }));
-  await page.route('**/api/providers/validate', route => route.fulfill({ json: { models: ['test/chat', 'test/chat-fast'], verifiedAt: new Date().toISOString() } }));
+  await page.route('**/api/providers/validate', route => route.fulfill({ json: { models: ['test/chat', longModel], verifiedAt: new Date().toISOString() } }));
   const sent: string[] = [];
   await page.route('**/api/chat', async route => {
     const input = route.request().postDataJSON(); sent.push(input.connection.model);
@@ -85,9 +87,37 @@ test('the active model can be switched from the composer', async ({ page }) => {
   await page.goto('/workspace'); await page.getByRole('button', { name: 'Reject optional cookies', exact: true }).click();
   await connectProvider(page);
   const switcher = page.getByLabel('Active model');
-  await expect(switcher).toBeEnabled(); await switcher.selectOption('test/chat-fast');
-  await page.getByRole('textbox', { name: 'Your document request' }).fill('Which model answered?');
+  await expect(switcher).toBeEnabled(); await switcher.selectOption(longModel);
+  await page.getByRole('textbox', { name: 'Your document request' }).fill('LongMessage'.repeat(300));
   await page.getByRole('textbox', { name: 'Your document request' }).press('Enter');
   await expect(page.getByRole('log')).toContainText('Synthetic model answer.');
-  expect(sent).toEqual(['test/chat-fast']);
+  expect(sent).toEqual([longModel]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('dropping real files shows their names, removal and validation on both composers', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  for (const path of ['/workspace', '/playground']) {
+    await page.goto(path);
+    if (path === '/workspace') await page.getByRole('button', { name: 'Reject optional cookies' }).click();
+    const zone = page.locator('.attachments');
+    for (const extension of ['md', 'invalid']) {
+      const name = 'long-file-name-'.repeat(9) + '.' + extension;
+      const dataTransfer = await page.evaluateHandle(filename => {
+        const data = new DataTransfer();
+        data.items.add(new File(['Local attachment contents'], filename, { type: 'text/plain' }));
+        return data;
+      }, name);
+      await zone.dispatchEvent('dragover', { dataTransfer });
+      await expect(zone).toHaveAttribute('data-dragging', 'true');
+      await zone.dispatchEvent('drop', { dataTransfer });
+      if (extension === 'md') {
+        await expect(zone.getByText(name, { exact: true })).toBeVisible();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        await zone.getByRole('button', { name: 'Remove ' + name, exact: true }).click();
+        await expect(zone.getByText(name, { exact: true })).toHaveCount(0);
+      } else await expect(page.getByRole('alert').filter({ hasText: name })).toBeVisible();
+      await dataTransfer.dispose();
+    }
+  }
 });

@@ -1,30 +1,15 @@
-'use client';
-
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Orchestra } from './Orchestra';
-import { HeroProvider } from './HeroProvider';
-import { HeroStrip } from './HeroStrip';
+import { ArrowUpRight } from 'lucide-react';
+import { ProviderGallery } from './ProviderGallery';
 import '@/ui/styles/hero.css';
 
 export function Hero() {
   return <section className="hero" aria-labelledby="hero-heading">
-    <div className="hero-grid">
-      <div className="hero-content">
-        <h1 id="hero-heading" className="hero-heading">
-          <span className="hero-heading-line">Every format.</span>
-          <span className="hero-heading-line hero-heading-accent">One flow.</span>
-        </h1>
-        <p className="hero-description">Outline Studio turns one brief into coordinated reports, slides and diagrams—with AI coworkers you can direct.</p>
-        <div className="hero-cta">
-          <Button asChild><Link href="/workspace?style=academic">Start a document <ArrowUpRight size={18} /></Link></Button>
-          <Button asChild variant="outline"><Link href="/how-it-works">See how it works <ArrowRight size={16} /></Link></Button>
-        </div>
-        <HeroProvider />
-      </div>
-      <Orchestra />
-      <HeroStrip />
+    <h1 id="hero-heading">One workspace.<br />From thought to document.</h1>
+    <ProviderGallery />
+    <div className="hero-detail"><p>Explore ideas in chat, shape an assignment, and create coordinated reports, slides and diagrams with the AI you choose.</p>
+      <Link className="button button-primary" href="/workspace">Open workspace <ArrowUpRight size={17} /></Link>
+      <small>Drafts stay on this device. Bring your own AI key.</small>
     </div>
   </section>;
 }

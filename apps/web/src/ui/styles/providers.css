@@ -3,11 +3,11 @@
 .step-flow > p { margin: 0; }
 .provider-cards { display: grid; gap: 10px; }
 .provider-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; text-align: left; background: var(--white); cursor: pointer; transition: border-color var(--fast), background var(--fast); }
-@media (hover: hover) { .provider-card:hover { border-color: var(--indigo); background: #faf9f6; } }
-.provider-card.selected { border-color: var(--indigo); background: #f0eefc; }
+@media (hover: hover) { .provider-card:hover { border-color: var(--accent); background: #faf9f6; } }
+.provider-card.selected { border-color: var(--accent); background: #EEF2FF; }
 .provider-card strong { font-size: .95rem; color: var(--ink); }
 .provider-card span { font-size: .8rem; color: var(--muted); }
-.provider-card .lucide-check { color: var(--indigo); }
+.provider-card .lucide-check { color: var(--accent); }
 .step-flow > .provider-steps { margin-top: 12px; padding-left: 20px; color: var(--muted); }
 .step-flow > .provider-steps li { margin-bottom: 6px; font-size: .85rem; }
 .step-flow > .text-link { margin-top: 8px; display: inline-block; }
@@ -33,4 +33,4 @@
 .vault-controls { margin-top: 24px; }
 
 .step-flow input { min-width: 0; }
-.provider-card:focus-visible { outline: 3px solid var(--indigo); outline-offset: 3px; }
+.provider-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }

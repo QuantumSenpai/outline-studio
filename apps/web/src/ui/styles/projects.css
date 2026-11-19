@@ -7,7 +7,7 @@
 .project-list p { margin-bottom: 0; }
 .history-layout { display: grid; grid-template-columns: minmax(200px,.7fr) minmax(0,1.3fr); gap: 28px; }
 .version-list button { width: 100%; text-align: left; display: grid; gap: 5px; padding: 16px 12px; border-bottom: 1px solid var(--line); }
-.version-list [aria-pressed=true] { background: #eae7fa; }
+.version-list [aria-pressed=true] { background: #EEF2FF; }
 .version-list small { color: var(--muted); }
 .version-preview { min-width: 0; overflow-wrap: anywhere; }
 .version-preview h2 { font-size: 1.6rem; }

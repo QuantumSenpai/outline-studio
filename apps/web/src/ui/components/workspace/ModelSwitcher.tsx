@@ -20,7 +20,7 @@ export function ModelSwitcher({ disabled }: { disabled: boolean }) {
   }
   return <div className="model-switcher">
     {editing ? <span className="model-edit"><input aria-label="Custom model ID" value={value} placeholder={active.model} maxLength={200}
-      onChange={event => setValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') apply(); if (event.key === 'Escape') setEditing(false); }} />
+      onChange={event => setValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); apply(); } if (event.key === 'Escape') setEditing(false); }} />
       <button type="button" aria-label="Use custom model" disabled={!value.trim()} onClick={apply}>Use</button></span>
       : <><span>Model</span><select aria-label="Active model" disabled={disabled || models.length < 2} value={active.model} onChange={event => setModel(active!.provider, event.target.value)}>
         {models.map(id => <option key={id} value={id}>{id}</option>)}</select>

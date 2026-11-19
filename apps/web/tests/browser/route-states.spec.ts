@@ -5,7 +5,7 @@ test('public controls survive reduced motion, refresh and restored scroll', asyn
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  for (const width of [360, 390, 768, 1024, 1440, 1920]) {
+  for (const width of [320,360, 390, 768, 1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     for (const route of ['/', '/how-it-works', '/providers', '/templates', '/projects', '/history', '/workspace', '/feedback', '/privacy', '/terms']) {
       await page.goto(route);

@@ -14,7 +14,12 @@ test('accepted outline, coworkers, manual revision, review, reload and real down
   await page.getByRole('button',{name:'Accept outline & start coworkers'}).click();
   await expect(page.getByRole('button',{name:'Review against requirements'})).toBeVisible();
   expect(stages).toContain('writer:groq'); expect(stages).toContain('diagram:groq'); expect(stages).not.toContain('reviewer:groq');
+  await expect(page.getByRole('complementary', { name: 'Document alongside conversation' })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('complementary', { name: 'Document alongside conversation' })).toHaveCount(0);
   await page.getByRole('tab',{name:'Document',exact:true}).click(); await page.getByRole('button',{name:'Edit content'}).click();
+  await page.getByLabel('Caption', { exact: true }).fill('Revised protocol comparison.');
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.getByLabel('Document title',{exact:true}).fill('TCP and UDP revised manually'); await page.getByRole('button',{name:'Save revision'}).click();
   await expect(page.getByText('TCP and UDP revised manually').first()).toBeVisible();
   await page.getByRole('tab',{name:'Conversation',exact:true}).click(); await page.getByRole('button',{name:'Review against requirements'}).click();
@@ -86,4 +91,23 @@ test('cancellation, interrupted reload and offline states preserve the brief',as
   await page.waitForTimeout(2200); await expect(page.getByText('Your outline, for approval')).toHaveCount(0);
   await page.reload(); await expect(page.getByText('A synthetic request whose stage will be cancelled.')).toBeVisible();
   await context.setOffline(true); await expect(page.getByText(/Offline · local review/)).toBeVisible(); await context.setOffline(false);
+});
+
+test('mobile workflow controls open researcher and manage accepted sources', async ({ page }) => {
+  await mockProvider(page);
+  await page.route('**/api/sources?*', route => route.fulfill({ json: {
+    sources: [{ title: 'Campus water audit', url: 'https://example.org/audit', verifiedMetadata: true }],
+  } }));
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('/workspace?style=academic');
+  await page.getByRole('button', { name: 'Reject optional cookies' }).click();
+  await page.getByRole('button', { name: 'Workflow controls' }).click();
+  await page.getByRole('dialog').getByLabel('Independent task limit').selectOption('1');
+  await page.getByRole('button', { name: /Researcher Source metadata/ }).click();
+  await page.getByLabel('Title, topic or DOI').fill('Campus water audit');
+  await page.getByRole('button', { name: 'Search Crossref' }).click();
+  await page.getByRole('button', { name: 'Add to accepted sources' }).click();
+  await expect(page.getByRole('heading', { name: 'Accepted sources · 1' })).toBeVisible();
+  await page.getByRole('button', { name: 'Remove source' }).click();
+  await expect(page.getByRole('heading', { name: 'Accepted sources · 0' })).toBeVisible();
 });

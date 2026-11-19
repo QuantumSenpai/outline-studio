@@ -18,4 +18,12 @@ describe('diagram sources', () => {
     expect(source).toContain('n1{"Ordered reliable stream?"}');
     expect(source.match(/-->/g)).toHaveLength(3);
   });
+  it('escapes special characters in node and edge labels', () => {
+    const source = mermaidSource({ ...diagram,
+      nodes: diagram.nodes.map(node => ({ ...node, label: 'A "quote" <tag> & value\nnext' })),
+      edges: diagram.edges.map(edge => ({ ...edge, label: '"yes" < 2 & 3' })),
+    });
+    expect(source).toContain('A &quot;quote&quot; &lt;tag&gt; &amp; value next');
+    expect(source).toContain('|"&quot;yes&quot; &lt; 2 &amp; 3"|');
+  });
 });

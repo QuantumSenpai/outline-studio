@@ -16,7 +16,7 @@ ${diagram.edges.map(e => `  ${e.from} -> ${e.to}${e.label ? ` [label=${JSON.stri
 
 export function mermaidSource(value: DiagramIR) {
   const diagram = diagramSchema.parse(value);
-  const label = (text: string) => text.replace(/&/g, '&').replace(/"/g, '"').replace(/</g, '<').replace(/>/g, '>').replace(/[\r\n]/g, ' ');
+  const label = (text: string) => text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\r\n]/g, ' ');
   const ids = new Map(diagram.nodes.map((node, index) => [node.id, `n${index}`]));
   const shapes = { 
     process: ['["', '"]'], 

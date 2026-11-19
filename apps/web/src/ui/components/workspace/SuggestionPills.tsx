@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
 
 export const chatSuggestions = [
@@ -15,12 +14,7 @@ export const chatSuggestions = [
 ];
 
 export function SuggestionPills({ onSelect, disabled }: { onSelect: (text: string) => void; disabled?: boolean }) {
-  const [offset, setOffset] = useState(0);
-  useEffect(() => {
-    const timer = window.setInterval(() => setOffset(value => (value + 1) % chatSuggestions.length), 12000);
-    return () => window.clearInterval(timer);
-  }, []);
-  const visible = Array.from({ length: 4 }, (_, index) => chatSuggestions[(offset + index) % chatSuggestions.length]);
-  return <div className="suggestion-pills" role="group" aria-label="Suggestions" key={offset}>{visible.map(item =>
+  const visible = chatSuggestions.slice(0, 3);
+  return <div className="suggestion-pills" role="group" aria-label="Suggestions">{visible.map(item =>
     <button key={item.label} type="button" disabled={disabled} onClick={() => onSelect(item.prompt)}>{item.label}<ArrowUp size={13} /></button>)}</div>;
 }

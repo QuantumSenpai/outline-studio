@@ -23,7 +23,7 @@ export function useCheckpoint(style: StyleId, projectId?: string, fresh = false)
       if (!data && fresh) next.mode = 'document';
       await saveProject(next);
       if (!active) return;
-      if (!projectId) window.history.replaceState(null, '', `/workspace?project=${next.projectId ?? next.runId}`);
+      if (!projectId) window.history.replaceState(null, '', `${window.location.pathname}?project=${next.projectId ?? next.runId}`);
       hydrate(next); setLoaded(key);
     }).catch(error => {
       if (!active) return;

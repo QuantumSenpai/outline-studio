@@ -3,10 +3,10 @@ import AxeBuilder from '@axe-core/playwright';
 
 test('public routes, metadata, cookie preference changes and mobile navigation',async({page})=>{
   const errors:string[]=[]; page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('/'); await expect(page.getByRole('heading',{level:1})).toHaveText('Every format.One flow.');
+  await page.goto('/'); await expect(page.getByRole('heading',{level:1})).toHaveText('One workspace.From thought to document.');
   await page.getByRole('button',{name:'Reject optional cookies',exact:true}).click();
   await page.reload(); await expect(page.getByLabel('Storage preferences',{exact:true})).toHaveCount(0);
-  await page.getByRole('button',{name:'Cookie preferences',exact:true}).click();
+  await page.getByRole('button',{name:'Storage preferences',exact:true}).click();
   await expect(page.getByRole('dialog')).toBeVisible(); await page.getByRole('button',{name:'Accept optional cookies',exact:true}).click();
   for(const route of ['/how-it-works','/templates','/providers','/feedback','/privacy','/terms']) {
     await page.goto(route); await expect(page.locator('main h1')).toBeVisible();
@@ -20,16 +20,17 @@ test('public routes, metadata, cookie preference changes and mobile navigation',
   await expect(page).toHaveURL(/templates/); expect(errors).toEqual([]);
 });
 test('responsive layouts, reduced motion and private indexing',async({page})=>{
-  for(const width of [360,390,768,1024,1440,1920]) {
+  await page.goto('/'); await page.getByRole('button',{name:'Reject optional cookies',exact:true}).click();
+  for(const width of [320,360,390,768,1024,1440,1920]) {
     await page.setViewportSize({width,height:900});
-    for(const path of ['/','/templates','/workspace']) {
+    for(const path of ['/','/templates','/workspace','/playground']) {
       await page.goto(path); await page.waitForTimeout(350);
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
       await page.screenshot({path:`../../qa-output/layout-${path==='/'?'home':path.slice(1)}-${width}.png`,fullPage:true});
     }
   }
   await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
-  await expect(page.getByRole('link',{name:'Start a document'}).first()).toBeVisible();
+  await expect(page.getByRole('link',{name:'Open workspace'}).first()).toBeVisible();
   await page.screenshot({path:'../../qa-output/reduced-motion.png',fullPage:true});
   const sitemap=await (await page.request.get('/sitemap.xml')).text();
   for (const path of ['/workspace', '/projects', '/history']) {
@@ -50,7 +51,7 @@ test('feedback stays editable when persistence fails and acknowledges actual con
 });
 
 test('not-found preserves a usable return path at phone and desktop widths', async ({ page }) => {
-  for (const width of [360, 1440]) {
+  for (const width of [320,360, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     const response = await page.goto('/missing-outline-completion-page');
     expect(response?.status()).toBe(404);

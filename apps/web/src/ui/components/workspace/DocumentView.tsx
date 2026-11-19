@@ -9,12 +9,12 @@ import { DiagramPreview } from './DiagramPreview';
 import { MathText } from './MathText';
 import { Button } from '../ui/button';
 
-export function DocumentView({ busy }: { busy: boolean }) {
-  const { checkpoint } = useWorkspace(); const [editing, setEditing] = useState(false);
+export function DocumentView({ busy, companion = false }: { busy: boolean; companion?: boolean }) {
+  const { checkpoint, setTab } = useWorkspace(); const [editing, setEditing] = useState(false);
   if (!checkpoint?.document) return <div className="workspace-empty"><h2>A place for the document.</h2><p>Accept an outline and let the writer build a draft. Your accepted content and editable preview appear here.</p></div>;
   const { document, settings, diagram } = checkpoint;
   if (editing) return <DocumentEditor onClose={() => setEditing(false)} />;
-  return <div className="document-view"><div className="panel-title"><div><h2>Document preview</h2><p className="small muted">Continuous preview; actual pagination depends on the export and viewer.</p></div><Button variant="outline" disabled={busy} onClick={() => setEditing(true)}>Edit content</Button></div>
+  return <div className="document-view"><div className="panel-title"><div><h2>Document preview</h2><p className="small muted">Continuous preview; actual pagination depends on the export and viewer.</p></div><Button variant="outline" disabled={busy} onClick={() => companion ? setTab('document') : setEditing(true)}>{companion ? 'Open document' : 'Edit content'}</Button></div>
     <p className="notice small">Academic type: licensed Tinos fallback. DOCX/PPTX request Times New Roman in your viewer. Check substitutions and Unicode after download. Math is typeset here; exports preserve its TeX source.</p>
     <article className={`document-paper ${settings.style}`} style={{ lineHeight: settings.lineSpacing, padding: `clamp(20px,4vw,${settings.margin * 2}px)` }}>
       {settings.watermark && <div className="preview-watermark">Outline Studio draft</div>}
