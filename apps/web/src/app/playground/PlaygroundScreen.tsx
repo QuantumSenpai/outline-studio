@@ -16,6 +16,7 @@ import { PlaygroundEmpty } from './PlaygroundEmpty';
 import Link from 'next/link';
 import { PlaygroundInput } from './PlaygroundInput';
 import { messageFrom } from '@/lib/api';
+import { useConversationMotion } from '@/ui/hooks/useConversationMotion';
 
 export function PlaygroundScreen({ projectId }: { projectId?: string }) {
   const loaded = useCheckpoint('academic', projectId);
@@ -30,6 +31,8 @@ export function PlaygroundScreen({ projectId }: { projectId?: string }) {
   const transcriptRef = useRef<HTMLDivElement>(null);
   const [dragActive, setDragActive] = useState(false);
   const [following, setFollowing] = useState(true);
+  const motionRoot = useRef<HTMLElement>(null);
+  useConversationMotion(motionRoot, loaded, Boolean(checkpoint?.messages.length));
 
   function addFiles(files: File[]) {
     if (!assistantMode && !chat.busy && !pipeline.busy && !chat.preparing) void chat.addFiles(files);
@@ -60,7 +63,7 @@ export function PlaygroundScreen({ projectId }: { projectId?: string }) {
 
   if (!loaded || !checkpoint) return <main id="main" className="page-container empty-page" aria-busy="true"><h1>Opening playground.</h1><p>Loading local drafts and checkpoints…</p></main>;
 
-  return <main id="main" className="playground-root">
+  return <main id="main" ref={motionRoot} className="playground-root">
     <ProviderSetup open={providerOpen} onOpenChange={setProviderOpen} />
       <header className="workspace-toolbar"><Link href="/" className="chat-brand">Outline Studio</Link>
         <Link className="text-link" href={`/workspace?project=${checkpoint.projectId ?? checkpoint.runId}`}>Full workspace</Link>

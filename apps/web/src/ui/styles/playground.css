@@ -1,3 +1,1 @@
 .workspace-body.chat-mode { grid-template-columns:minmax(0,1fr); }
-.workspace-tab-content[data-state=active] { animation:pane-in 180ms ease-out; }
-@keyframes pane-in { from { opacity:.7; } to { opacity:1; } }

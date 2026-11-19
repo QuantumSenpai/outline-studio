@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Explore can be opened by keyboard and dismissed by Escape or an outside click', async ({ page }) => {
   await page.goto('/');
-  const trigger = page.locator('.explore-menu > summary');
+  const trigger = page.getByRole('button', { name: 'Explore', exact: true });
   await trigger.focus();
   await page.keyboard.press('Enter');
   const link = page.getByRole('link', { name: /Templates Four/ });

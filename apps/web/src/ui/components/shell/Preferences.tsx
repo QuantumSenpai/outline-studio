@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { z } from 'zod';
 import { Modal } from '../ui/dialog';
 import { Button } from '../ui/button';
 
-const preference = z.object({ version: z.literal(1), optional: z.boolean(), at: z.string() });
 function snapshot() {
   try { return localStorage.getItem('outline-preferences') ?? ''; } catch { return 'unavailable'; }
 }
@@ -16,7 +14,7 @@ function subscribe(callback: () => void) {
 export function Preferences() {
   const saved = useSyncExternalStore(subscribe, snapshot, () => 'server');
   let selected: boolean | null = null;
-  try { const parsed = preference.safeParse(JSON.parse(saved)); if (parsed.success) selected = parsed.data.optional; } catch { selected = null; }
+  try { const parsed: unknown = JSON.parse(saved); if (parsed && typeof parsed === 'object' && 'version' in parsed && parsed.version === 1 && 'optional' in parsed && typeof parsed.optional === 'boolean' && 'at' in parsed && typeof parsed.at === 'string') selected = parsed.optional; } catch { selected = null; }
   const [sessionChoice, setSessionChoice] = useState<boolean | null>(null);
   const choice = selected ?? sessionChoice;
   const [open, setOpen] = useState(false);

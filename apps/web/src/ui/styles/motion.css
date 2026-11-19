@@ -1,0 +1,23 @@
+.dialog-overlay[data-state=open] { animation:overlay-open 240ms var(--ease-out); }
+.dialog-overlay[data-state=closed] { animation:overlay-close 180ms var(--ease-out); }
+.dialog-content[data-state=open] { animation:dialog-open 240ms var(--ease-out); }
+.dialog-content[data-state=closed] { animation:dialog-close 180ms var(--ease-out); pointer-events:none; }
+@keyframes overlay-open { from { opacity:0; } to { opacity:1; } }
+@keyframes overlay-close { from { opacity:1; } to { opacity:0; } }
+@keyframes dialog-open { from { opacity:0; transform:translate(-50%,-48%) scale(.98); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+@keyframes dialog-close { from { opacity:1; transform:translate(-50%,-50%) scale(1); } to { opacity:0; transform:translate(-50%,-48%) scale(.98); } }
+.attachment-menu { transform-origin:bottom left; transition:opacity var(--fast) var(--ease-out),transform var(--fast) var(--ease-out); }
+.chat-documentation::details-content,.footer-group::details-content { opacity:0; transition:opacity var(--fast) var(--ease-out),content-visibility var(--fast) allow-discrete; }
+.chat-documentation[open]::details-content,.footer-group[open]::details-content { opacity:1; }
+.workspace-tools button,.playground-send,.playground-stop,.workspace-tabs button,.coworker-button,.model-switcher button,.icon-button { transition:transform 100ms var(--ease-out),background var(--fast) ease,color var(--fast) ease; }
+.workspace-tools button:active,.playground-send:active,.playground-stop:active,.model-switcher button:active,.coworker-button:active { transform:scale(.97); }
+.workspace-toolbar { padding-top:max(8px,env(safe-area-inset-top)); }
+@starting-style { .attachment-menu { opacity:0; transform:translateY(6px) scale(.97); } }
+@media(prefers-reduced-motion:reduce) {
+  .dialog-content[data-state=open] { animation:dialog-open .01ms linear!important; }
+  .dialog-content[data-state=closed] { animation:dialog-close .01ms linear!important; }
+  .dialog-overlay[data-state=open] { animation:overlay-open .01ms linear!important; }
+  .dialog-overlay[data-state=closed] { animation:overlay-close .01ms linear!important; }
+  .dialog-content { transform:translate(-50%,-50%)!important; }
+  .attachment-menu { transition:none; }
+}

@@ -13,6 +13,8 @@ import { AttachmentPicker } from './AttachmentPicker';
 import { ModelSwitcher } from './ModelSwitcher';
 import { SuggestionPills } from './SuggestionPills';
 import { ChatText } from './ChatText';
+import { useConversationMotion } from '../../hooks/useConversationMotion';
+import { SelectionIndicator } from './SelectionIndicator';
 
 export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onResume, onChat, chatPartial, chatError, attachments, onAddFiles, onRemoveAttachment, useImages, onUseImages, preparing, chat }:
   { busy: boolean; onPlan: () => void; onCancel: () => void; onAccept: () => void; onReview: () => void; onResume: () => void; openProvider: () => void; onChat: (documentation?: DocumentationQuery, retry?: boolean) => void; chatPartial: string; chatError: string; attachments: ChatAttachment[]; onAddFiles: (files: File[]) => void; onRemoveAttachment: (id: string) => void; useImages: boolean; onUseImages: (value: boolean) => void; preparing: boolean; chat: ReturnType<typeof import('@/ui/hooks/useChat').useChat> }) {
@@ -21,11 +23,13 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
   const [dragging, setDragging] = useState(false);
   const [inputError, setInputError] = useState('');
   const transcript = useRef<HTMLDivElement>(null);
+  const motionRoot = useRef<HTMLDivElement>(null);
+  useConversationMotion(motionRoot, Boolean(checkpoint), Boolean(checkpoint?.messages.length));
   const following = useRef(true); const [atBottom, setAtBottom] = useState(true);
   useEffect(() => {
     const element = transcript.current;
     if (following.current && element && (checkpoint?.messages.length || checkpoint?.outline || checkpoint?.review || busy)) element.scrollTop = element.scrollHeight;
-  }, [checkpoint?.messages.length, checkpoint?.outline, checkpoint?.review, busy]);
+  }, [checkpoint?.messages.length, checkpoint?.outline, checkpoint?.review, busy, chatPartial]);
   if (!checkpoint) return null;
   function submit() {
     if (!checkpoint || preparing || busy || !checkpoint.composer.trim()) return;
@@ -43,7 +47,7 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
     } else onPlan();
   }
   const showResume = checkpoint.outlineAccepted && (!checkpoint.document || !checkpoint.diagram);
-  return <div className="conversation-pane" data-dragging={dragging} onDragOver={event => {
+  return <div ref={motionRoot} className="conversation-pane" data-dragging={dragging} onDragOver={event => {
     if (checkpoint.mode !== 'chat' || busy || preparing || !event.dataTransfer.types.includes('Files')) return;
     event.preventDefault(); setDragging(true);
   }} onDragLeave={event => {
@@ -64,13 +68,13 @@ export function Conversation({ busy, onPlan, onCancel, onAccept, onReview, onRes
     {checkpoint.mode === 'document' && checkpoint.document && checkpoint.diagram && !checkpoint.review && <div className="notice"><p>Your draft and diagram are ready for inspection. Edit them in the document view, then run review.</p><div className="button-row">
       <Button variant="outline" onClick={() => setTab('document')}>Inspect & edit</Button><Button disabled={busy} onClick={onReview}>Review against requirements</Button></div></div>}
     {checkpoint.mode === 'document' && checkpoint.review && <Completion onRevise={() => setTab('document')} />}
-    {chatPartial && <article className="message studio" aria-label="Reply in progress"><ChatText text={chatPartial} /><small>Reply in progress · not saved until complete</small></article>}
+    {chatPartial && <article className="message studio" data-streaming="true" aria-label="Reply in progress"><ChatText text={chatPartial} /><small>Reply in progress · not saved until complete</small></article>}
     {busy && <div role="status" className="working-status"><span className="status-dot running" />{checkpoint.mode === 'chat' ? 'Assistant is replying…' : 'Coworkers are working. Open a task to see its status.'}</div>}
   </div>{checkpoint.messages.length > 0 && !atBottom && <button className="follow-button" onClick={() => { following.current = true; setAtBottom(true); if (transcript.current) transcript.current.scrollTop = transcript.current.scrollHeight; }}>Latest messages <ArrowDown size={14} /></button>}
     {(chatError || inputError) && <p className="notice error" role="alert">{inputError || chatError}</p>}
     {checkpoint.mode === 'chat' && !busy && checkpoint.messages.at(-1)?.role === 'user' && <button className="text-link chat-retry" onClick={() => onChat(undefined, true)}>Retry saved message</button>}
     <form className="composer" onSubmit={e => { e.preventDefault(); submit(); }}><label htmlFor="brief-composer" className="sr-only">Your document request</label>
-      <div className="composer-top"><div className="conversation-mode" role="group" aria-label="Conversation mode">{(['chat', 'document'] as const).map(mode => <button key={mode} type="button" aria-pressed={checkpoint.mode === mode} disabled={busy} onClick={() => { patch({ mode }); setInputError(''); }}>{mode === 'chat' ? 'Chat' : 'Create document'}</button>)}</div>
+      <div className="composer-top"><div className="conversation-mode" role="group" aria-label="Conversation mode"><SelectionIndicator value={checkpoint.mode} />{(['chat', 'document'] as const).map(mode => <button key={mode} type="button" aria-pressed={checkpoint.mode === mode} disabled={busy} onClick={() => { patch({ mode }); setInputError(''); }}>{mode === 'chat' ? 'Chat' : 'Create document'}</button>)}</div>
         <ModelSwitcher disabled={busy} /></div>
       <textarea id="brief-composer" value={checkpoint.composer} onChange={e => patch({ composer: e.target.value })} rows={2} maxLength={12000}
         placeholder="Send a message or describe your document…" disabled={busy} onKeyDown={event => {

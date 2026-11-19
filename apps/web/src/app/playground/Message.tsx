@@ -4,7 +4,7 @@ import { ChatText } from '@/ui/components/workspace/ChatText';
 import { type ChatAttachment } from '@outline-studio/schemas';
 
 export function Message({ message, isStreaming }: { message: { id: string; role: 'user' | 'studio'; text: string; documentation?: { sources: { title: string; url: string }[]; notice?: string }; attachments?: ChatAttachment[] }; isStreaming: boolean }) {
-  return <article className={`playground-message ${message.role} ${isStreaming ? 'streaming' : ''}`}>
+  return <article data-streaming={isStreaming} className={`playground-message ${message.role} ${isStreaming ? 'streaming' : ''}`}>
     <div className="playground-message-avatar">{message.role === 'user' ? 'U' : 'AI'}</div>
     <div className="playground-message-content">
       <ChatText text={message.text} />
