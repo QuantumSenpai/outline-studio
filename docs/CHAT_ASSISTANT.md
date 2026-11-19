@@ -21,3 +21,11 @@ Chat is a general, streaming conversation mode in the existing workspace. It is 
 
 ## Verification
 `pnpm typecheck`, `pnpm lint`, `pnpm test` (including real PDF text extraction and schema-bound tests) and `pnpm build` are run for this feature. Browser coverage targets visible attachment chips, camera input, bounded submission, context retention and failure/retry recovery. Live provider inference remains separately authorized and recorded in COMPOSER_API_REPORT.md.
+
+## Reply formatting and style
+
+Workspace and playground share a memoized Markdown renderer. The pinned Marked lexer, already present through Mermaid and now a direct dependency, produces tokens rendered as React elements. Bold, emphasis, headings, lists, code, tables and ordinary links are displayed with scoped chat typography. Raw HTML is escaped, unsafe link schemes are rejected, and remote Markdown images are represented by their alt text without loading them. Code stays literal, including unfinished streamed code fences. Stored message text and export/history data are unchanged.
+
+New chat replies are instructed to answer directly, use bold labels sparingly, use formal academic prose and plain punctuation when relevant, and avoid unnecessary capability menus or permission questions. Chat must not offer to retry generation or attach downloads it cannot create; downloadable outputs use the existing Create document workflow. These are prompt instructions, not a claim of verified live-provider compliance.
+
+Regression coverage reproduces the reported numbered bold reply, nested formatting, fenced/inline code, tables and list numbering, plus unsafe HTML/links. Production browser checks cover both chat routes at phone width and confirm formatting survives reload.

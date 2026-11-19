@@ -40,6 +40,7 @@
     "jszip": "latest",
     "katex": "latest",
     "lucide-react": "latest",
+    "marked": "16.4.2",
     "mermaid": "latest",
     "next": "16.4.6",
     "pdf-lib": "latest",
